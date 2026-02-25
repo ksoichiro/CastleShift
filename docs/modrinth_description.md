@@ -26,7 +26,7 @@ Castle Shift is a structure mod that adds multi-story castles to Minecraft's wor
 ## 🛠️ Technical Details
 
 ### Multi-Loader Support
-This mod is built with **Architectury** and supports multiple mod loaders!
+This mod supports multiple mod loaders!
 - Download the correct version for your mod loader
 - Shared codebase ensures consistent experience across loaders
 
@@ -34,11 +34,9 @@ This mod is built with **Architectury** and supports multiple mod loaders!
 
 **For Minecraft 1.21.1:**
 - **Mod Loader**: Fabric Loader 0.17.3+ with Fabric API 0.116.7+, OR NeoForge 21.1.209+
-- **Dependency**: Architectury API 13.0.8+
 
 **For Minecraft 1.20.1:**
 - **Mod Loader**: Fabric Loader 0.16.10+ with Fabric API 0.92.2+, OR Forge 47.3.0+
-- **Dependency**: Architectury API 9.2.14+
 
 ### Compatibility
 - Works with most world generation mods
@@ -61,7 +59,7 @@ Check out the **Gallery** above for screenshots showcasing the castles!
 
 ## 🤝 Credits
 
-- Built with [Architectury](https://github.com/architectury/architectury-api)
+- Built with [Architectury Loom](https://github.com/architectury/architectury-loom)
 
 ---
 
