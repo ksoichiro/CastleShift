@@ -32,16 +32,20 @@ Built with [Architectury](https://docs.architectury.dev/) for multi-loader, mult
 
 ```
 .
-├── common-shared/          # Version-agnostic shared code
-├── common-1.21.1/          # Common code for MC 1.21.1
-├── common-1.20.1/          # Common code for MC 1.20.1
-├── fabric-base/            # Shared Fabric code
-├── fabric-1.21.1/          # Fabric for MC 1.21.1
-├── fabric-1.20.1/          # Fabric for MC 1.20.1
-├── neoforge-base/          # Shared NeoForge code
-├── neoforge-1.21.1/        # NeoForge for MC 1.21.1
-├── forge-base/             # Shared Forge code
-└── forge-1.20.1/           # Forge for MC 1.20.1
+├── common/
+│   ├── shared/             # Version-agnostic shared code
+│   ├── 1.21.1/             # Common code for MC 1.21.1
+│   └── 1.20.1/             # Common code for MC 1.20.1
+├── fabric/
+│   ├── base/               # Shared Fabric code
+│   ├── 1.21.1/             # Fabric for MC 1.21.1
+│   └── 1.20.1/             # Fabric for MC 1.20.1
+├── neoforge/
+│   ├── base/               # Shared NeoForge code
+│   └── 1.21.1/             # NeoForge for MC 1.21.1
+└── forge/
+    ├── base/               # Shared Forge code
+    └── 1.20.1/             # Forge for MC 1.20.1
 ```
 
 ## License

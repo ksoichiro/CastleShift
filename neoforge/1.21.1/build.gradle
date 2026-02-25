@@ -4,7 +4,7 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    forge()
+    neoForge()
 }
 
 configurations {
@@ -12,13 +12,13 @@ configurations {
     shadowCommon
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    developmentNeoForge.extendsFrom common
 }
 
 sourceSets {
     main {
         java {
-            srcDir '../forge-base/src/main/java'
+            srcDir '../base/src/main/java'
             srcDir 'src/main/java'
         }
         resources {
@@ -26,30 +26,26 @@ sourceSets {
             // Version-specific resources FIRST (higher priority)
             srcDir 'src/main/resources'
             // Shared resources SECOND (lower priority)
-            srcDir '../forge-base/src/main/resources'
+            srcDir '../base/src/main/resources'
         }
     }
 }
 
-def commonModule = ':common-1.20.1'
+def commonModule = ':common-1.21.1'
 
 loom {
     accessWidenerPath = project(commonModule).loom.accessWidenerPath
 
-    forge {
-        mixinConfig "castleshift.mixins.json"
-    }
-
     runs {
         client {
             client()
-            setConfigName("Forge Client")
+            setConfigName("NeoForge Client")
             ideConfigGenerated(true)
             runDir("run")
         }
         server {
             server()
-            setConfigName("Forge Server")
+            setConfigName("NeoForge Server")
             ideConfigGenerated(true)
             runDir("run")
         }
@@ -57,25 +53,24 @@ loom {
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.ext.minecraft_version}-${rootProject.ext.forge_version}"
-    modApi "dev.architectury:architectury-forge:${rootProject.ext.architectury_api_version}"
+    neoForge "net.neoforged:neoforge:${neoforge_version}"
+    modApi "dev.architectury:architectury-neoforge:${architectury_api_version}"
 
     common(project(path: commonModule, configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: commonModule, configuration: "transformProductionForge")) { transitive false }
+    shadowCommon(project(path: commonModule, configuration: "transformProductionNeoForge")) { transitive false }
 }
 
 tasks.named("processResources", ProcessResources).configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.property "version", project.version
 
-    filesMatching("META-INF/mods.toml") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": project.version
     }
 
     from(project(commonModule).sourceSets.main.resources) {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         exclude "fabric.mod.json"
-        exclude "castleshift.mixins.json"
         exclude "architectury.common.json"
     }
 }
@@ -92,7 +87,7 @@ tasks.named("remapJar").configure {
     inputFile.set tasks.named("shadowJar").flatMap { it.archiveFile }
     dependsOn tasks.named("shadowJar")
     archiveBaseName = rootProject.archives_name
-    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-forge"
+    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-neoforge"
     archiveClassifier = null
 }
 
@@ -106,7 +101,7 @@ tasks.named("sourcesJar").configure {
     dependsOn commonSources
     from commonSources.flatMap { it.archiveFile }.map { zipTree(it) }
     archiveBaseName = rootProject.archives_name
-    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-forge"
+    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-neoforge"
 }
 
 components.java {
@@ -117,8 +112,8 @@ components.java {
 
 publishing {
     publications {
-        mavenForge(MavenPublication) {
-            artifactId = "${archives_name}-forge"
+        mavenNeoForge(MavenPublication) {
+            artifactId = "${archives_name}-neoforge"
             from components.java
         }
     }

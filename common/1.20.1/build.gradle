@@ -10,7 +10,7 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
-            srcDir '../common-shared/src/main/java'
+            srcDir '../shared/src/main/java'
         }
     }
 }
@@ -48,7 +48,7 @@ if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
 
         // TODO: Update 'castleshift' to your mod ID in both paths below.
         // 1.21.1 uses 'structure' (singular), 1.20.1 uses 'structures' (plural)
-        def inputDir = rootProject.file('common-1.21.1/src/main/resources/data/castleshift/structure')
+        def inputDir = rootProject.file('common/1.21.1/src/main/resources/data/castleshift/structure')
         def outputDir = file('build/generated/nbt/data/castleshift/structures')
         def scriptPath = rootProject.file('scripts/convert_nbt_1_21_to_1_20.py')
 

@@ -37,12 +37,12 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir '../fabric-base/src/main/java'
+            srcDir '../base/src/main/java'
             srcDir 'src/main/java'
         }
         resources {
             srcDir 'src/main/resources'
-            srcDir '../fabric-base/src/main/resources'
+            srcDir '../base/src/main/resources'
         }
     }
 }
