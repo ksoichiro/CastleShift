@@ -100,6 +100,9 @@ subprojects {
 
     // Common resource processing for platform modules (fabric, neoforge, forge)
     if (project.name in ['fabric', 'neoforge', 'forge']) {
+        // Production run support (runProd)
+        apply from: "${rootDir}/gradle/prod-run.gradle"
+
         tasks.withType(ProcessResources).configureEach {
             inputs.property 'pack_format', project.ext.pack_format
 
