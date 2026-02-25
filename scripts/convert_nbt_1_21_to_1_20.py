@@ -353,7 +353,7 @@ def convert_batch(input_dir: str, output_dir: str, data_version: int = 3465) -> 
 
     output_path.mkdir(parents=True, exist_ok=True)
 
-    nbt_files = list(input_path.glob("*.nbt"))
+    nbt_files = sorted(input_path.glob("**/*.nbt"))
     if not nbt_files:
         print(f"Warning: No .nbt files found in {input_dir}")
         return 0
@@ -365,8 +365,10 @@ def convert_batch(input_dir: str, output_dir: str, data_version: int = 3465) -> 
 
     success_count = 0
     for nbt_file in nbt_files:
-        output_file = output_path / nbt_file.name
-        print(f"Converting: {nbt_file.name}")
+        relative = nbt_file.relative_to(input_path)
+        output_file = output_path / relative
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        print(f"Converting: {relative}")
         if convert_nbt_structure(str(nbt_file), str(output_file), data_version):
             success_count += 1
 
