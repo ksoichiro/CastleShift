@@ -94,6 +94,62 @@ if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
     }
 }
 
+// Data File Copy (JSON): 1.21.1 → 1.20.1
+// Copies JSON data files with directory renaming (e.g. loot_table → loot_tables).
+// To enable: set enable_data_copy=true in gradle.properties
+if (rootProject.findProperty('enable_data_copy') == 'true') {
+    sourceSets {
+        main {
+            resources {
+                srcDir 'build/generated/data'
+            }
+        }
+    }
+
+    tasks.register('copyDataFiles', Exec) {
+        group = 'build'
+        description = 'Copy JSON data files from 1.21.1 to 1.20.1 with directory renaming'
+
+        onlyIf {
+            project.ext.minecraft_version == '1.20.1'
+        }
+
+        def inputDir = rootProject.file('common/1.21.1/src/main/resources/data/castleshift')
+        def outputDir = file('build/generated/data/data/castleshift')
+        def scriptPath = rootProject.file('scripts/copy_data_1_21_to_1_20.py')
+
+        inputs.dir(inputDir).optional()
+        inputs.file(scriptPath)
+        outputs.dir(outputDir)
+
+        doFirst {
+            if (!inputDir.exists()) {
+                logger.warn("Input directory does not exist: ${inputDir}")
+                logger.warn("Skipping data file copy")
+                return
+            }
+
+            if (!scriptPath.exists()) {
+                throw new GradleException("Data copy script not found: ${scriptPath}")
+            }
+
+            logger.lifecycle('')
+            logger.lifecycle('Copying data files from 1.21.1 to 1.20.1...')
+            logger.lifecycle("  Input:  ${inputDir}")
+            logger.lifecycle("  Output: ${outputDir}")
+            logger.lifecycle('')
+        }
+
+        commandLine 'python3', scriptPath.absolutePath, inputDir.absolutePath, outputDir.absolutePath
+    }
+
+    processResources.dependsOn copyDataFiles
+
+    tasks.named('sourcesJar') {
+        dependsOn copyDataFiles
+    }
+}
+
 // Expand pack_format variable in pack.mcmeta
 processResources {
     inputs.property 'pack_format', project.ext.pack_format
