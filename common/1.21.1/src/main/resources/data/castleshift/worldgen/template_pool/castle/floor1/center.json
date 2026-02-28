@@ -9,6 +9,24 @@
         "projection": "rigid",
         "processors": "castleshift:roof_material"
       }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "castleshift:castle/floor1/center/center2",
+        "projection": "rigid",
+        "processors": "castleshift:roof_material"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "castleshift:castle/floor1/center/center3",
+        "projection": "rigid",
+        "processors": "castleshift:roof_material"
+      }
     }
   ]
 }
