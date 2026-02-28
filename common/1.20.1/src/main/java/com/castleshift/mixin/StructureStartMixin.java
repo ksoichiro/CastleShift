@@ -2,6 +2,7 @@ package com.castleshift.mixin;
 
 import com.castleshift.world.processor.MaterialCombination;
 import com.castleshift.world.processor.RoofMaterialContext;
+import com.castleshift.world.processor.StairMaterialContext;
 import com.castleshift.world.processor.WallMaterialContext;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
@@ -28,6 +29,7 @@ public class StructureStartMixin {
         MaterialCombination combination = MaterialCombination.get(combinationIndex);
         RoofMaterialContext.set(combination.roofIndex());
         WallMaterialContext.set(combination.wallIndex());
+        StairMaterialContext.set(combination.stairIndex());
     }
 
     @Inject(method = "placeInChunk", at = @At("RETURN"))
@@ -36,5 +38,6 @@ public class StructureStartMixin {
             RandomSource random, BoundingBox boundingBox, ChunkPos chunkPos, CallbackInfo ci) {
         RoofMaterialContext.clear();
         WallMaterialContext.clear();
+        StairMaterialContext.clear();
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 public class ModProcessors {
     public static final StructureProcessorType<RoofMaterialProcessor> ROOF_MATERIAL = () -> RoofMaterialProcessor.CODEC;
     public static final StructureProcessorType<WallMaterialProcessor> WALL_MATERIAL = () -> WallMaterialProcessor.CODEC;
+    public static final StructureProcessorType<StairMaterialProcessor> STAIR_MATERIAL = () -> StairMaterialProcessor.CODEC;
 
     public static void init() {
         ResourceLocation roofId = ResourceLocation.fromNamespaceAndPath("castleshift", "roof_material");
@@ -17,6 +18,10 @@ public class ModProcessors {
         ResourceLocation wallId = ResourceLocation.fromNamespaceAndPath("castleshift", "wall_material");
         if (!BuiltInRegistries.STRUCTURE_PROCESSOR.containsKey(wallId)) {
             Registry.register(BuiltInRegistries.STRUCTURE_PROCESSOR, wallId, WALL_MATERIAL);
+        }
+        ResourceLocation stairId = ResourceLocation.fromNamespaceAndPath("castleshift", "stair_material");
+        if (!BuiltInRegistries.STRUCTURE_PROCESSOR.containsKey(stairId)) {
+            Registry.register(BuiltInRegistries.STRUCTURE_PROCESSOR, stairId, STAIR_MATERIAL);
         }
     }
 }

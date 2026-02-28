@@ -5,6 +5,9 @@
     },
     {
       "processor_type": "castleshift:wall_material"
+    },
+    {
+      "processor_type": "castleshift:stair_material"
     }
   ]
 }
