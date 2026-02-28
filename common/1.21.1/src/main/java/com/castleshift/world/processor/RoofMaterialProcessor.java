@@ -18,7 +18,6 @@ public class RoofMaterialProcessor extends StructureProcessor {
     public static final RoofMaterialProcessor INSTANCE = new RoofMaterialProcessor();
     public static final MapCodec<RoofMaterialProcessor> CODEC = MapCodec.unit(INSTANCE);
 
-    // Index 0 = spruce (no replacement), 1 = dark oak, 2 = deepslate bricks
     static final List<Map<Block, Block>> MATERIAL_MAPS = List.of(
             Map.of(), // 0: spruce (original)
             Map.of(   // 1: dark oak
@@ -32,6 +31,24 @@ public class RoofMaterialProcessor extends StructureProcessor {
                     Blocks.SPRUCE_SLAB, Blocks.DEEPSLATE_BRICK_SLAB,
                     Blocks.SPRUCE_STAIRS, Blocks.DEEPSLATE_BRICK_STAIRS,
                     Blocks.SPRUCE_FENCE, Blocks.DEEPSLATE_BRICK_WALL
+            ),
+            Map.of(   // 3: dark prismarine
+                    Blocks.SPRUCE_PLANKS, Blocks.DARK_PRISMARINE,
+                    Blocks.SPRUCE_SLAB, Blocks.DARK_PRISMARINE_SLAB,
+                    Blocks.SPRUCE_STAIRS, Blocks.DARK_PRISMARINE_STAIRS,
+                    Blocks.SPRUCE_FENCE, Blocks.PRISMARINE_WALL
+            ),
+            Map.of(   // 4: red nether bricks
+                    Blocks.SPRUCE_PLANKS, Blocks.RED_NETHER_BRICKS,
+                    Blocks.SPRUCE_SLAB, Blocks.RED_NETHER_BRICK_SLAB,
+                    Blocks.SPRUCE_STAIRS, Blocks.RED_NETHER_BRICK_STAIRS,
+                    Blocks.SPRUCE_FENCE, Blocks.RED_NETHER_BRICK_WALL
+            ),
+            Map.of(   // 5: crimson
+                    Blocks.SPRUCE_PLANKS, Blocks.CRIMSON_PLANKS,
+                    Blocks.SPRUCE_SLAB, Blocks.CRIMSON_SLAB,
+                    Blocks.SPRUCE_STAIRS, Blocks.CRIMSON_STAIRS,
+                    Blocks.SPRUCE_FENCE, Blocks.CRIMSON_FENCE
             )
     );
 

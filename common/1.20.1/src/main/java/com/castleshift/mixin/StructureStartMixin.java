@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(StructureStart.class)
 public class StructureStartMixin {
-    private static final int MATERIAL_COUNT = 3;
+    private static final int MATERIAL_COUNT = 6;
 
     @Inject(method = "placeInChunk", at = @At("HEAD"))
     private void castleshift$onPlaceInChunkHead(
