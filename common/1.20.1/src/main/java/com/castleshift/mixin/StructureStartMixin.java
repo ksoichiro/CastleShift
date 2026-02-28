@@ -1,5 +1,6 @@
 package com.castleshift.mixin;
 
+import com.castleshift.world.processor.MaterialCombination;
 import com.castleshift.world.processor.RoofMaterialContext;
 import com.castleshift.world.processor.WallMaterialContext;
 import net.minecraft.util.RandomSource;
@@ -16,22 +17,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(StructureStart.class)
 public class StructureStartMixin {
-    private static final int ROOF_MATERIAL_COUNT = 6;
-    private static final int WALL_MATERIAL_COUNT = 5;
-
     @Inject(method = "placeInChunk", at = @At("HEAD"))
     private void castleshift$onPlaceInChunkHead(
             WorldGenLevel level, StructureManager structureManager, ChunkGenerator chunkGenerator,
             RandomSource random, BoundingBox boundingBox, ChunkPos chunkPos, CallbackInfo ci) {
         StructureStart self = (StructureStart) (Object) this;
         net.minecraft.core.BlockPos center = self.getBoundingBox().getCenter();
-        long roofSeed = level.getSeed() ^ (center.getX() * 341873128712L + center.getZ() * 132897987541L);
-        int roofMaterialIndex = (int) (Math.abs(roofSeed) % ROOF_MATERIAL_COUNT);
-        RoofMaterialContext.set(roofMaterialIndex);
-
-        long wallSeed = level.getSeed() ^ (center.getX() * 6364136223846793005L + center.getZ() * 1442695040888963407L);
-        int wallMaterialIndex = (int) (Math.abs(wallSeed) % WALL_MATERIAL_COUNT);
-        WallMaterialContext.set(wallMaterialIndex);
+        long seed = level.getSeed() ^ (center.getX() * 341873128712L + center.getZ() * 132897987541L);
+        int combinationIndex = (int) (Math.abs(seed) % MaterialCombination.combinationCount());
+        MaterialCombination combination = MaterialCombination.get(combinationIndex);
+        RoofMaterialContext.set(combination.roofIndex());
+        WallMaterialContext.set(combination.wallIndex());
     }
 
     @Inject(method = "placeInChunk", at = @At("RETURN"))
