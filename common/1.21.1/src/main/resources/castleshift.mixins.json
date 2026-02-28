@@ -4,6 +4,7 @@
   "package": "com.castleshift.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "StructureStartMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -7,7 +7,7 @@
         "element_type": "minecraft:single_pool_element",
         "location": "castleshift:castle/floor1/center/center1",
         "projection": "rigid",
-        "processors": "minecraft:empty"
+        "processors": "castleshift:roof_material"
       }
     }
   ]
