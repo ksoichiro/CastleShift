@@ -9,6 +9,7 @@ public class ModProcessors {
     public static final StructureProcessorType<RoofMaterialProcessor> ROOF_MATERIAL = () -> RoofMaterialProcessor.CODEC;
     public static final StructureProcessorType<WallMaterialProcessor> WALL_MATERIAL = () -> WallMaterialProcessor.CODEC;
     public static final StructureProcessorType<StairMaterialProcessor> STAIR_MATERIAL = () -> StairMaterialProcessor.CODEC;
+    public static final StructureProcessorType<WallWeatheringProcessor> WALL_WEATHERING = () -> WallWeatheringProcessor.CODEC;
 
     public static void init() {
         ResourceLocation roofId = ResourceLocation.fromNamespaceAndPath("castleshift", "roof_material");
@@ -22,6 +23,10 @@ public class ModProcessors {
         ResourceLocation stairId = ResourceLocation.fromNamespaceAndPath("castleshift", "stair_material");
         if (!BuiltInRegistries.STRUCTURE_PROCESSOR.containsKey(stairId)) {
             Registry.register(BuiltInRegistries.STRUCTURE_PROCESSOR, stairId, STAIR_MATERIAL);
+        }
+        ResourceLocation wallWeatheringId = ResourceLocation.fromNamespaceAndPath("castleshift", "wall_weathering");
+        if (!BuiltInRegistries.STRUCTURE_PROCESSOR.containsKey(wallWeatheringId)) {
+            Registry.register(BuiltInRegistries.STRUCTURE_PROCESSOR, wallWeatheringId, WALL_WEATHERING);
         }
     }
 }

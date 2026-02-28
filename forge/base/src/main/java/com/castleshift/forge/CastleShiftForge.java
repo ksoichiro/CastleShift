@@ -18,6 +18,7 @@ public class CastleShiftForge {
         PROCESSOR_TYPES.register("roof_material", () -> ModProcessors.ROOF_MATERIAL);
         PROCESSOR_TYPES.register("wall_material", () -> ModProcessors.WALL_MATERIAL);
         PROCESSOR_TYPES.register("stair_material", () -> ModProcessors.STAIR_MATERIAL);
+        PROCESSOR_TYPES.register("wall_weathering", () -> ModProcessors.WALL_WEATHERING);
     }
 
     public CastleShiftForge() {

@@ -8,6 +8,9 @@
     },
     {
       "processor_type": "castleshift:stair_material"
+    },
+    {
+      "processor_type": "castleshift:wall_weathering"
     }
   ]
 }

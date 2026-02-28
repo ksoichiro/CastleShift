@@ -4,6 +4,7 @@ import com.castleshift.world.processor.MaterialCombination;
 import com.castleshift.world.processor.RoofMaterialContext;
 import com.castleshift.world.processor.StairMaterialContext;
 import com.castleshift.world.processor.WallMaterialContext;
+import com.castleshift.world.processor.WallWeatheringContext;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
@@ -30,6 +31,14 @@ public class StructureStartMixin {
         RoofMaterialContext.set(combination.roofIndex());
         WallMaterialContext.set(combination.wallIndex());
         StairMaterialContext.set(combination.stairIndex());
+        // Weathering applies to stone brick walls (0) and polished blackstone brick walls (2)
+        if (combination.wallIndex() == 0 || combination.wallIndex() == 2) {
+            long weatheringSeed = seed ^ 0x9E3779B97F4A7C15L;
+            boolean weatheringEnabled = (Math.abs(weatheringSeed) % 2) == 0;
+            WallWeatheringContext.set(weatheringEnabled);
+        } else {
+            WallWeatheringContext.set(false);
+        }
     }
 
     @Inject(method = "placeInChunk", at = @At("RETURN"))
@@ -39,5 +48,6 @@ public class StructureStartMixin {
         RoofMaterialContext.clear();
         WallMaterialContext.clear();
         StairMaterialContext.clear();
+        WallWeatheringContext.clear();
     }
 }
