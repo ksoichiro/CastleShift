@@ -1,11 +1,11 @@
 {
-  "fallback": "castleshift:castle/floor4/corner_nw",
+  "fallback": "minecraft:empty",
   "elements": [
     {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "castleshift:castle/floor4/corner_nw/corner_nw1",
+        "location": "castleshift:castle/floor2/wall_n3_fb/tower",
         "projection": "rigid",
         "processors": "minecraft:empty"
       }

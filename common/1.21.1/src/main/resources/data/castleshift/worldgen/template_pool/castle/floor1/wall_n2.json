@@ -1,11 +1,11 @@
 {
-  "fallback": "castleshift:castle/floor4/corner_ne",
+  "fallback": "castleshift:castle/floor1/wall_n3_fb",
   "elements": [
     {
-      "weight": 2,
+      "weight": 3,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "castleshift:castle/floor3/corner_ne/corner_ne1",
+        "location": "castleshift:castle/floor1/wall_n2/corridor1",
         "projection": "rigid",
         "processors": "minecraft:empty"
       }
@@ -14,7 +14,7 @@
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "castleshift:castle/floor3/corner_ne/corner_ne2",
+        "location": "castleshift:castle/floor1/wall_n2/corridor2",
         "projection": "rigid",
         "processors": "minecraft:empty"
       }

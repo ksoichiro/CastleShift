@@ -1,5 +1,5 @@
 {
-  "fallback": "minecraft:empty",
+  "fallback": "castleshift:castle/floor4/corner_ne",
   "elements": [
     {
       "weight": 1,
