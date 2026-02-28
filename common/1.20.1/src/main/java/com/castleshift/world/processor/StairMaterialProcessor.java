@@ -18,6 +18,14 @@ public class StairMaterialProcessor extends StructureProcessor {
     public static final StairMaterialProcessor INSTANCE = new StairMaterialProcessor();
     public static final Codec<StairMaterialProcessor> CODEC = Codec.unit(INSTANCE);
 
+    public static final int BRICKS = 0;
+    public static final int STONE_BRICKS = 1;
+    public static final int POLISHED_GRANITE = 2;
+    public static final int DEEPSLATE_BRICKS = 3;
+    public static final int POLISHED_BLACKSTONE = 4;
+    public static final int POLISHED_BLACKSTONE_BRICKS = 5;
+    public static final int RED_NETHER_BRICKS = 6;
+
     static final List<Map<Block, Block>> MATERIAL_MAPS = List.of(
             Map.of(), // 0: bricks (original)
             Map.of(   // 1: stone bricks

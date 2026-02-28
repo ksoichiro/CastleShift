@@ -18,6 +18,12 @@ public class WallMaterialProcessor extends StructureProcessor {
     public static final WallMaterialProcessor INSTANCE = new WallMaterialProcessor();
     public static final MapCodec<WallMaterialProcessor> CODEC = MapCodec.unit(INSTANCE);
 
+    public static final int STONE_BRICKS = 0;
+    public static final int DEEPSLATE_BRICKS = 1;
+    public static final int POLISHED_BLACKSTONE_BRICKS = 2;
+    public static final int SANDSTONE = 3;
+    public static final int END_STONE_BRICKS = 4;
+
     static final List<Map<Block, Block>> MATERIAL_MAPS = List.of(
             Map.of(), // 0: stone bricks (original)
             Map.of(   // 1: deepslate brick

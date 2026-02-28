@@ -18,6 +18,13 @@ public class RoofMaterialProcessor extends StructureProcessor {
     public static final RoofMaterialProcessor INSTANCE = new RoofMaterialProcessor();
     public static final MapCodec<RoofMaterialProcessor> CODEC = MapCodec.unit(INSTANCE);
 
+    public static final int SPRUCE = 0;
+    public static final int DARK_OAK = 1;
+    public static final int DEEPSLATE_BRICKS = 2;
+    public static final int DARK_PRISMARINE = 3;
+    public static final int RED_NETHER_BRICKS = 4;
+    public static final int CRIMSON = 5;
+
     static final List<Map<Block, Block>> MATERIAL_MAPS = List.of(
             Map.of(), // 0: spruce (original)
             Map.of(   // 1: dark oak

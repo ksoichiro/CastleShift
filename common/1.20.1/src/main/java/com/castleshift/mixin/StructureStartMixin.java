@@ -4,6 +4,7 @@ import com.castleshift.world.processor.MaterialCombination;
 import com.castleshift.world.processor.RoofMaterialContext;
 import com.castleshift.world.processor.StairMaterialContext;
 import com.castleshift.world.processor.WallMaterialContext;
+import com.castleshift.world.processor.WallMaterialProcessor;
 import com.castleshift.world.processor.WallWeatheringContext;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
@@ -31,8 +32,8 @@ public class StructureStartMixin {
         RoofMaterialContext.set(combination.roofIndex());
         WallMaterialContext.set(combination.wallIndex());
         StairMaterialContext.set(combination.stairIndex());
-        // Weathering applies to stone brick walls (0) and polished blackstone brick walls (2)
-        if (combination.wallIndex() == 0 || combination.wallIndex() == 2) {
+        if (combination.wallIndex() == WallMaterialProcessor.STONE_BRICKS
+                || combination.wallIndex() == WallMaterialProcessor.POLISHED_BLACKSTONE_BRICKS) {
             long weatheringSeed = seed ^ 0x9E3779B97F4A7C15L;
             boolean weatheringEnabled = (Math.abs(weatheringSeed) % 2) == 0;
             WallWeatheringContext.set(weatheringEnabled);
