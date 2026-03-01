@@ -3,10 +3,9 @@
 # --- Project-specific settings ---
 # TODO: Update these values for your mod
 MOD_ID="castleshift"
-MODRINTH_PROJECT_ID="XXXXXXXX"
+MODRINTH_PROJECT_ID="YD7K9Qmq"
 PROJECT_NAME="Castle Shift"
 # Modrinth project IDs for dependencies
-DEP_ARCHITECTURY="lhGA9TYQ"
 DEP_FABRIC_API="P7dR8mSH"
 # ---------------------------------
 
@@ -55,13 +54,10 @@ fi
 
 if [ "$LOADER" = "fabric" ]; then
   DEPENDENCIES='[
-      {"project_id": "'"$DEP_ARCHITECTURY"'", "dependency_type": "required"},
       {"project_id": "'"$DEP_FABRIC_API"'", "dependency_type": "required"}
     ]'
 else
-  DEPENDENCIES='[
-      {"project_id": "'"$DEP_ARCHITECTURY"'", "dependency_type": "required"}
-    ]'
+  DEPENDENCIES='[]'
 fi
 
 # Status needs to be "listed"
