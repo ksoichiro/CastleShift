@@ -72,6 +72,13 @@ processResources {
     filesMatching('fabric.mod.json') {
         expand 'version': project.version
     }
+
+    if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
+        dependsOn "${commonModule}:convertNbtStructures"
+    }
+    if (rootProject.findProperty('enable_data_copy') == 'true') {
+        dependsOn "${commonModule}:copyDataFiles"
+    }
 }
 
 shadowJar {

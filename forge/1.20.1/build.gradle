@@ -77,6 +77,13 @@ tasks.named("processResources", ProcessResources).configure {
         exclude "castleshift.mixins.json"
         exclude "architectury.common.json"
     }
+
+    if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
+        dependsOn "${commonModule}:convertNbtStructures"
+    }
+    if (rootProject.findProperty('enable_data_copy') == 'true') {
+        dependsOn "${commonModule}:copyDataFiles"
+    }
 }
 
 tasks.named("shadowJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configure {
