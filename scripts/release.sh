@@ -85,7 +85,7 @@ EXISTING=$(curl -s "https://api.modrinth.com/v2/project/${MODRINTH_PROJECT_ID}/v
   | jq --arg v "$MOD_VERSION" --arg l "$LOADER" --arg g "$GAME_VERSION" \
     '[.[] | select(.version_number == $v and (.loaders | index($l)) and (.game_versions | index($g)))] | length')
 
-if [ "$EXISTING" -gt 0 ]; then
+if [ "${EXISTING:-0}" -gt 0 ]; then
   echo "Error: Version ${MOD_VERSION} for ${LOADER} ${GAME_VERSION} already exists." >&2
   exit 1
 fi
