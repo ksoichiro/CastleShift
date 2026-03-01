@@ -13,9 +13,18 @@ Castle Shift is a structure mod that adds multi-story castles to Minecraft's wor
 ## ✨ Features
 
 ### 🏗️ Multi-Story Castles
-- **4-Floor Structures**: Grand stone brick castles with walls and towers
-- **Randomized Generation**: Parts of each castle vary randomly, creating unique encounters every time
+- **4-Floor Structures**: Grand castles with walls, towers, and corridors
 - **Natural Placement**: Castles generate organically in a wide variety of biomes
+
+### 🎨 Randomized Materials
+Each castle's roofs, walls, and stairs are built from materials randomly selected per castle, so no two castles look the same!
+- **Roofs**: Spruce, Dark Oak, Deepslate Bricks, Dark Prismarine, Red Nether Bricks, Crimson
+- **Walls**: Stone Bricks, Deepslate Bricks, Polished Blackstone Bricks, Sandstone, End Stone Bricks
+- **Stairs**: Bricks, Stone Bricks, Polished Granite, Deepslate Bricks, Polished Blackstone, Polished Blackstone Bricks, Red Nether Bricks
+
+### 🧱 Structural Variations & Weathering
+- **Multiple Templates**: Each floor section (walls, corners, centers, towers) has multiple structure templates chosen at random
+- **Wall Weathering**: Stone brick and polished blackstone brick walls may randomly degrade into cobblestone, andesite, or cracked variants for a lived-in look
 
 ### 📦 Datapack-Friendly
 - Structure placement can be customized via datapacks
@@ -25,18 +34,24 @@ Castle Shift is a structure mod that adds multi-story castles to Minecraft's wor
 
 ## 🛠️ Technical Details
 
-### Multi-Loader Support
-This mod supports multiple mod loaders!
-- Download the correct version for your mod loader
-- Shared codebase ensures consistent experience across loaders
+### Multi-Loader & Multi-Version Support
+This mod supports **multiple Minecraft versions and mod loaders**!
+- **1.21.1**: Fabric and NeoForge
+- **1.20.1**: Fabric and Forge
+- Download the correct version for your Minecraft version and mod loader
+- Shared codebase ensures consistent experience across versions and loaders
 
 ### Requirements
 
-**For Minecraft 1.21.1:**
-- **Mod Loader**: Fabric Loader 0.17.3+ with Fabric API 0.116.7+, OR NeoForge 21.1.209+
+#### Minecraft 1.21.1
+- **Mod Loader**:
+  - Fabric Loader 0.17.3+ with Fabric API 0.116.7+1.21.1, OR
+  - NeoForge 21.1.209+
 
-**For Minecraft 1.20.1:**
-- **Mod Loader**: Fabric Loader 0.16.10+ with Fabric API 0.92.2+, OR Forge 47.3.0+
+#### Minecraft 1.20.1
+- **Mod Loader**:
+  - Fabric Loader 0.16.10+ with Fabric API 0.92.2+1.20.1, OR
+  - Forge 47.3.0+
 
 ### Compatibility
 - Works with most world generation mods
@@ -69,11 +84,11 @@ Check out the **Gallery** above for screenshots showcasing the castles!
 
 **Source Code**: Available on [GitHub](https://github.com/ksoichiro/CastleShift)
 
-**Freedom to Use**: Free to use, modify, and redistribute under LGPL-3.0 terms
+**Freedom to Use**: ✅ Free to use, modify, and redistribute under LGPL-3.0 terms
 
-**Modpack Inclusion**: Allowed - You may include this mod in modpacks
+**Modpack Inclusion**: ✅ Allowed - You may include this mod in modpacks
 
-**Redistribution**: Allowed - You may redistribute this mod (must remain LGPL-3.0)
+**Redistribution**: ✅ Allowed - You may redistribute this mod (must remain LGPL-3.0)
 
 ---
 
@@ -85,3 +100,5 @@ Check out the **Gallery** above for screenshots showcasing the castles!
 ---
 
 **Developed for Minecraft Java Edition 1.21.1 / 1.20.1**
+
+Explore the castles that await you. 🏰
