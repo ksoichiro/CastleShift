@@ -30,6 +30,13 @@ Each castle's roofs, walls, and stairs are built from materials randomly selecte
 - Structure placement can be customized via datapacks
 - Adjust spacing, separation, and biome filters to your liking
 
+### 🔍 Commands
+You can use Minecraft commands to locate or manually place castles:
+- `/locate structure castleshift:castle` - Find the nearest castle and get its coordinates
+- `/place structure castleshift:castle` - Place a castle at your current position
+
+*Note: These commands require cheats enabled or operator permissions.*
+
 ---
 
 ## 🛠️ Technical Details
