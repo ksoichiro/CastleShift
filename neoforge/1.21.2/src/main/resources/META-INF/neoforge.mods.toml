@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="LGPL-3.0-only"
+showAsResourcePack=false
+
+[[mods]]
+modId="castleshift"
+version="${version}"
+displayName="Castle Shift"
+description='''
+A structure mod that adds castles to the world.
+'''
+authors="ksoichiro"
+displayURL="https://github.com/ksoichiro/CastleShift"
+
+[[mixins]]
+config="castleshift.mixins.json"
+
+[[dependencies.castleshift]]
+modId="neoforge"
+type="required"
+versionRange="[21.2.0-beta,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.castleshift]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.2]"
+ordering="NONE"
+side="BOTH"

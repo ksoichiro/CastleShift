@@ -1,0 +1,16 @@
+{
+  "processors": [
+    {
+      "processor_type": "castleshift:roof_material"
+    },
+    {
+      "processor_type": "castleshift:wall_material"
+    },
+    {
+      "processor_type": "castleshift:stair_material"
+    },
+    {
+      "processor_type": "castleshift:wall_weathering"
+    }
+  ]
+}

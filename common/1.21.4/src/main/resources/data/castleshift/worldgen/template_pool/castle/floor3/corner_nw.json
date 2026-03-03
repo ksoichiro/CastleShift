@@ -1,0 +1,23 @@
+{
+  "fallback": "castleshift:castle/floor4/corner_nw",
+  "elements": [
+    {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "castleshift:castle/floor3/corner_nw/corner_nw1",
+        "projection": "rigid",
+        "processors": "castleshift:roof_material"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "castleshift:castle/floor3/corner_nw/corner_nw2",
+        "projection": "rigid",
+        "processors": "castleshift:roof_material"
+      }
+    }
+  ]
+}

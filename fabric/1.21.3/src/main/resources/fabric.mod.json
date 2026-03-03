@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "castleshift",
+  "version": "${version}",
+  "name": "Castle Shift",
+  "description": "A structure mod that adds castles to the world.",
+  "authors": [
+    "ksoichiro"
+  ],
+  "contact": {
+    "homepage": "https://github.com/ksoichiro/CastleShift",
+    "sources": "https://github.com/ksoichiro/CastleShift"
+  },
+  "license": "LGPL-3.0-only",
+  "icon": "assets/castleshift/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.castleshift.fabric.CastleShiftFabric"
+    ],
+    "client": [
+      "com.castleshift.fabric.CastleShiftFabricClient"
+    ]
+  },
+  "accessWidener": "castleshift.accesswidener",
+  "mixins": [
+    "castleshift.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.3",
+    "fabric-api": "*",
+    "minecraft": "~1.21.3",
+    "java": ">=21"
+  }
+}
