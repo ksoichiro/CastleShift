@@ -12,6 +12,11 @@ sourceSets {
             srcDir 'src/main/java'
             srcDir '../shared/src/main/java'
         }
+        resources {
+            srcDir 'src/main/resources'
+            // Data files (structures, worldgen, loot tables) are copied from 1.21.1 at build time
+            srcDir 'build/generated/data'
+        }
     }
 }
 
@@ -22,8 +27,16 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 }
 
+// Copy shared data files (structures, worldgen, loot tables) from 1.21.1
+tasks.register('copySharedData', Copy) {
+    from rootProject.file('common/1.21.1/src/main/resources/data')
+    into file('build/generated/data/data')
+}
+
 // Expand pack_format variable in pack.mcmeta
 processResources {
+    dependsOn copySharedData
+
     inputs.property 'pack_format', project.ext.pack_format
 
     filesMatching('pack.mcmeta') {
@@ -33,5 +46,6 @@ processResources {
 
 // Set duplicates strategy for sourcesJar to avoid conflicts
 tasks.named('sourcesJar') {
+    dependsOn copySharedData
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
