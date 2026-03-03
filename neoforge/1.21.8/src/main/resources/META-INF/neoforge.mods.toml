@@ -19,7 +19,7 @@ config="castleshift.mixins.json"
 [[dependencies.castleshift]]
 modId="neoforge"
 type="required"
-versionRange="[21.8.0,)"
+versionRange="[21.8.0-beta,)"
 ordering="NONE"
 side="BOTH"
 
