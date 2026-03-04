@@ -36,6 +36,7 @@ tasks.register('copySharedData', Copy) {
 // Expand pack_format variable in pack.mcmeta
 processResources {
     dependsOn copySharedData
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     inputs.property 'pack_format', project.ext.pack_format
 
