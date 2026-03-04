@@ -29,7 +29,8 @@ Supported versions:
 ./gradlew build -Ptarget_mc_version=1.20.1         # Build specific version
 ./gradlew fabric:runClient                         # Run Fabric client
 ./gradlew neoforge:runClient                       # Run NeoForge client
-./gradlew forge:runClient -Ptarget_mc_version=1.20.1  # Run Forge client
+./gradlew forge:runClient                          # Run Forge client (1.21.x, ForgeGradle)
+./gradlew forge:runClient -Ptarget_mc_version=1.20.1  # Run Forge client (1.20.1, Loom)
 ./gradlew buildAll                                 # Build all versions
 ./gradlew release                                  # Clean + build all + collect JARs
 ```
@@ -60,9 +61,11 @@ Supported versions:
 - ResourceLocation: 1.21 uses `fromNamespaceAndPath()`, 1.20.1 uses constructor
 - Codec: 1.21 uses `MapCodec`, 1.20.1 uses `Codec`
 
-### Forge with Architectury Loom
+### Forge Build System
 
-`loom.platform = forge` must be set in `forge/{version}/gradle.properties` (Loom defaults to Fabric mode).
+- **Forge 1.21.x** (Forge 52+): Uses **ForgeGradle** directly (`net.minecraftforge.gradle` plugin). Architectury Loom's `loom.platform = forge` has JPMS split package conflicts on 1.21+.
+- **Forge 1.20.1** (Forge 47): Uses **Architectury Loom** with `loom.platform = forge` in `forge/1.20.1/gradle.properties`.
+- `forge_major_version` in `props/{version}.properties` controls ForgeGradle-specific conditional logic (reobf, JPMS, EventBus).
 
 ### Forge API differences by version
 
@@ -72,5 +75,8 @@ Supported versions:
 ## Scripts
 
 - `scripts/convert_nbt_1_21_to_1_20.py` - Convert structure NBT files from 1.21.1 to 1.20.1 format
+- `scripts/copy_data_1_21_to_1_20.py` - Copy data files from 1.21.1 to 1.20.1 (with pack_format adjustment)
 - `scripts/release.sh` - Upload a single JAR to Modrinth
 - `scripts/release-all.sh` - Upload all JARs in `build/release/` to Modrinth
+- `scripts/release-curseforge.sh` - Upload a single JAR to CurseForge
+- `scripts/release-curseforge-all.sh` - Upload all JARs in `build/release/` to CurseForge

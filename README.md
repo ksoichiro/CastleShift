@@ -26,6 +26,7 @@ A multi-loader Minecraft mod that generates multi-story stone brick castles acro
 |-----------|-----------|
 | 1.21.1 | Fabric Loader 0.17.3+ with Fabric API 0.116.7+1.21.1 |
 | 1.21.1 | NeoForge 21.1.209+ |
+| 1.21.1 | Forge 52.1.0+ |
 | 1.20.1 | Fabric Loader 0.16.10+ with Fabric API 0.92.2+1.20.1 |
 | 1.20.1 | Forge 47.3.0+ |
 
@@ -34,7 +35,7 @@ A multi-loader Minecraft mod that generates multi-story stone brick castles acro
 ### For Players
 - **Minecraft**: Java Edition 1.21.1 or 1.20.1
 - **Mod Loader** (choose one for your Minecraft version):
-  - **1.21.1**: Fabric Loader 0.17.3+ with Fabric API 0.116.7+1.21.1, OR NeoForge 21.1.209+
+  - **1.21.1**: Fabric Loader 0.17.3+ with Fabric API 0.116.7+1.21.1, OR NeoForge 21.1.209+, OR Forge 52.1.0+
   - **1.20.1**: Fabric Loader 0.16.10+ with Fabric API 0.92.2+1.20.1, OR Forge 47.3.0+
 
 ### For Developers
@@ -57,6 +58,7 @@ cd CastleShift
 **Output Files** (1.21.1):
 - `fabric/1.21.1/build/libs/castleshift-0.1.0+1.21.1-fabric.jar` - Fabric loader JAR
 - `neoforge/1.21.1/build/libs/castleshift-0.1.0+1.21.1-neoforge.jar` - NeoForge loader JAR
+- `forge/1.21.1/build/libs/castleshift-0.1.0+1.21.1-forge.jar` - Forge loader JAR
 
 **Output Files** (1.20.1):
 - `fabric/1.20.1/build/libs/castleshift-0.1.0+1.20.1-fabric.jar` - Fabric loader JAR
@@ -88,6 +90,9 @@ cd CastleShift
 # NeoForge client (1.21.1)
 ./gradlew neoforge:runClient
 
+# Forge client (1.21.1)
+./gradlew forge:runClient
+
 # Fabric client (1.20.1)
 ./gradlew fabric:runClient -Ptarget_mc_version=1.20.1
 
@@ -111,6 +116,12 @@ cd CastleShift
 2. Install NeoForge 21.1.209+
 3. Copy the NeoForge JAR to `.minecraft/mods/` folder
 4. Launch Minecraft with NeoForge profile
+
+#### Forge
+1. Install Minecraft 1.21.1
+2. Install Forge 52.1.0+
+3. Copy the Forge JAR to `.minecraft/mods/` folder
+4. Launch Minecraft with Forge profile
 
 ### For Minecraft 1.20.1
 
@@ -152,7 +163,9 @@ CastleShift/
 │   └── 1.21.1/              # NeoForge subproject for MC 1.21.1
 ├── forge/
 │   ├── base/                # Shared Forge sources
-│   └── 1.20.1/              # Forge subproject for MC 1.20.1
+│   ├── base-56/             # Forge 56+ sources (MC 1.21.6+, EventBus 7)
+│   ├── 1.21.1/              # Forge subproject for MC 1.21.1 (ForgeGradle)
+│   └── 1.20.1/              # Forge subproject for MC 1.20.1 (Architectury Loom)
 ├── props/                   # Version-specific properties
 ├── scripts/                 # Build and release scripts
 ├── build.gradle             # Root build configuration (Groovy DSL)
@@ -178,7 +191,7 @@ See the [COPYING](COPYING) and [COPYING.LESSER](COPYING.LESSER) files for full l
 
 ## Credits
 
-- Built with [Architectury Loom](https://github.com/architectury/architectury-loom)
+- Built with [Architectury Loom](https://github.com/architectury/architectury-loom) and [ForgeGradle](https://github.com/MinecraftForge/ForgeGradle)
 
 ## Support
 
