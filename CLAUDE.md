@@ -13,12 +13,13 @@ A structure mod for Minecraft that adds castles to the world. Multi-loader, mult
 - `common/{version}/` - Version-specific common code
 - `fabric/{version}/` - Fabric platform implementation
 - `neoforge/{version}/` - NeoForge platform implementation (1.21+)
-- `forge/{version}/` - Forge platform implementation (1.20.x)
+- `forge/{version}/` - Forge platform implementation
 - `fabric/base/`, `neoforge/base/`, `forge/base/` - Base platform code (included as srcDirs)
+- `forge/base-56/` - Base platform code for Forge 56+ (MC 1.21.6+, uses new EventBus API)
 - `props/` - Version-specific properties files
 
 Supported versions:
-- 1.21.1: Fabric, NeoForge
+- 1.21.1〜1.21.11: Fabric, NeoForge, Forge (except 1.21.2 which has no Forge release)
 - 1.20.1: Fabric, Forge
 
 ## Build Commands
@@ -59,9 +60,14 @@ Supported versions:
 - ResourceLocation: 1.21 uses `fromNamespaceAndPath()`, 1.20.1 uses constructor
 - Codec: 1.21 uses `MapCodec`, 1.20.1 uses `Codec`
 
-### Forge 1.20.1 with Architectury Loom
+### Forge with Architectury Loom
 
 `loom.platform = forge` must be set in `forge/{version}/gradle.properties` (Loom defaults to Fabric mode).
+
+### Forge API differences by version
+
+- Forge 47〜55 (MC 1.20.1〜1.21.5): `FMLJavaModLoadingContext.get().getModEventBus()` for event bus access
+- Forge 56+ (MC 1.21.6+): Constructor injection of `FMLJavaModLoadingContext`, use `context.getModBusGroup()` for registration (EventBus 7 migration)
 
 ## Scripts
 

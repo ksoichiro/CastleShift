@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[58,)"
+license="LGPL-3.0-only"
+
+[[mods]]
+modId="castleshift"
+version="${version}"
+displayName="Castle Shift"
+description='''
+A structure mod that adds castles to the world.
+'''
+authors="ksoichiro"
+displayURL="https://github.com/ksoichiro/CastleShift"
+
+[[dependencies.castleshift]]
+modId="forge"
+mandatory=true
+versionRange="[58,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.castleshift]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.21.8]"
+ordering="NONE"
+side="BOTH"
