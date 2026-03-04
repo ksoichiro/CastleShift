@@ -1,69 +1,110 @@
-plugins {
-    id 'com.gradleup.shadow'
+apply plugin: 'net.minecraftforge.gradle'
+
+def forgeMajor = project.ext.forge_major_version as int
+
+minecraft {
+    mappings channel: 'official', version: project.ext.minecraft_version
+
+    // Forge 50+ (1.20.6+): No reobfuscation needed
+    if (forgeMajor >= 50) {
+        reobf = false
+    }
+
+    // Forge 49+ (1.20.4+): Copy IDE resources
+    if (forgeMajor >= 49) {
+        copyIdeResources = true
+    }
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            // Forge 56+: EventBus strict runtime checks
+            if (forgeMajor >= 56) {
+                property 'eventbus.api.strictRuntimeChecks', 'true'
+            }
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', 'castleshift'
+        }
+
+        server {
+            property 'forge.enabledGameTestNamespaces', 'castleshift'
+            args '--nogui'
+        }
+    }
 }
 
-architectury {
-    platformSetupLoomIde()
-    forge()
-}
+// Data files are in common/1.21.1/src/main/resources/data/ directly.
+// Other versions copy from 1.21.1 at build time (same as common module's copySharedData).
+def commonResDir = "../../common/${project.ext.minecraft_version}/src/main/resources"
+def dataSourceDir = rootProject.file('common/1.21.1/src/main/resources/data')
+def hasOwnData = file("${commonResDir}/data").exists()
 
-configurations {
-    common
-    shadowCommon
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+if (!hasOwnData) {
+    tasks.register('copySharedData', Copy) {
+        from dataSourceDir
+        into layout.buildDirectory.dir('generated/data/data')
+    }
 }
 
 sourceSets {
     main {
         java {
-            srcDir '../base-56/src/main/java'
+            srcDir '../../common/shared/src/main/java'
+            srcDir "../../common/${project.ext.minecraft_version}/src/main/java"
+            if (forgeMajor >= 56) {
+                srcDir '../base-56/src/main/java'
+            } else {
+                srcDir '../base/src/main/java'
+            }
             srcDir 'src/main/java'
         }
         resources {
             srcDirs = []
-            // Version-specific resources FIRST (higher priority)
+            // Version-specific forge resources FIRST (higher priority)
             srcDir 'src/main/resources'
-            // Shared resources SECOND (lower priority)
+            // Shared forge base resources
             srcDir '../base/src/main/resources'
-        }
-    }
-}
-
-def commonModule = ':common-1.21.9'
-
-loom {
-    accessWidenerPath = project(commonModule).loom.accessWidenerPath
-
-    forge {
-        mixinConfig "castleshift.mixins.json"
-    }
-
-    runs {
-        client {
-            client()
-            setConfigName("Forge Client")
-            ideConfigGenerated(true)
-            runDir("run")
-        }
-        server {
-            server()
-            setConfigName("Forge Server")
-            ideConfigGenerated(true)
-            runDir("run")
+            // Common version-specific resources
+            srcDir commonResDir
+            // Generated data files (copied from 1.21.1 for other versions)
+            if (!hasOwnData) {
+                srcDir layout.buildDirectory.dir('generated/data')
+            }
         }
     }
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.ext.minecraft_version}-${rootProject.ext.forge_version}"
+    minecraft "net.minecraftforge:forge:${project.ext.minecraft_version}-${project.ext.forge_version}"
 
-    common(project(path: commonModule, configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: commonModule, configuration: "transformProductionForge")) { transitive false }
+    // Forge 56+: EventBus 7 compile-time validation
+    if (forgeMajor >= 56) {
+        annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
+    }
+}
+
+// Forge 49+: Merge resources and classes into the same directory for JPMS module support
+if (forgeMajor >= 49) {
+    sourceSets.each {
+        def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+        it.output.resourcesDir = dir
+        it.java.destinationDirectory = dir
+    }
+}
+
+// Forge < 50: Reobfuscate the jar
+if (forgeMajor < 50) {
+    jar.finalizedBy('reobfJar')
 }
 
 tasks.named("processResources", ProcessResources).configure {
+    if (!hasOwnData) {
+        dependsOn 'copySharedData'
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.property "version", project.version
 
@@ -71,54 +112,37 @@ tasks.named("processResources", ProcessResources).configure {
         expand "version": project.version
     }
 
-    from(project(commonModule).sourceSets.main.resources) {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        exclude "fabric.mod.json"
-        exclude "castleshift.mixins.json"
-        exclude "architectury.common.json"
-    }
-}
-
-tasks.named("shadowJar", com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configure {
+    // Exclude Fabric/Architectury-specific files from common resources
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
-
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier = "dev-shadow"
+    exclude "castleshift.accesswidener"
+    // Forge uses its own mixin config via JAR manifest, exclude common's copy
+    exclude "castleshift.mixins.json"
 }
 
-tasks.named("remapJar").configure {
-    inputFile.set tasks.named("shadowJar").flatMap { it.archiveFile }
-    dependsOn tasks.named("shadowJar")
-    archiveBaseName = rootProject.archives_name
-    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-forge"
-    archiveClassifier = null
-}
-
-tasks.named("jar").configure {
-    archiveClassifier = "dev"
-}
-
-tasks.named("sourcesJar").configure {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    def commonSources = project(commonModule).tasks.named("sourcesJar")
-    dependsOn commonSources
-    from commonSources.flatMap { it.archiveFile }.map { zipTree(it) }
-    archiveBaseName = rootProject.archives_name
-    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-forge"
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
+jar {
+    manifest {
+        attributes([
+                "MixinConfigs"           : "castleshift.mixins.json",
+                "Specification-Title"    : "castleshift",
+                "Specification-Vendor"   : "castleshift",
+                "Specification-Version"  : "1",
+                "Implementation-Title"   : project.name,
+                "Implementation-Version" : project.version,
+                "Implementation-Vendor"  : "castleshift",
+        ])
     }
+
+    archiveBaseName = rootProject.archives_name
+    archiveVersion = "${rootProject.mod_version}+${project.ext.minecraft_version}-forge"
+    archiveClassifier = ''
 }
 
 publishing {
     publications {
         mavenForge(MavenPublication) {
-            artifactId = "${archives_name}-forge"
-            from components.java
+            artifactId = "${rootProject.archives_name}-forge"
+            artifact jar
         }
     }
 

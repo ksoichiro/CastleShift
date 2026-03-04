@@ -815,10 +815,13 @@ if (project.name == 'forge') {
 
     // --- Task: setupProdMods ---
     // Copies built mod JAR and dependency mods to the instance mods/ directory.
+    def usesLoom = project.plugins.hasPlugin('dev.architectury.loom')
+    def modJarTaskName = usesLoom ? 'remapJar' : 'jar'
+
     tasks.register('setupProdMods') {
         group = 'miners market prod'
         description = "Copy built mod JAR and dependencies to mods/ for Forge ${mcVersion}"
-        dependsOn 'remapJar'
+        dependsOn modJarTaskName
 
         doLast {
             def modsDir = file("${prodBaseDir}/instances/forge-${mcVersion}/mods")
@@ -826,7 +829,7 @@ if (project.name == 'forge') {
             modsDir.mkdirs()
 
             // Built mod JAR
-            def modJar = tasks.named('remapJar').get().archiveFile.get().asFile
+            def modJar = tasks.named(modJarTaskName).get().archiveFile.get().asFile
             ant.copy(file: modJar, todir: modsDir)
             logger.lifecycle("  Mod: ${modJar.name}")
 
