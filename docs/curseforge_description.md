@@ -43,22 +43,15 @@ You can use Minecraft commands to locate or manually place castles:
 
 ### Multi-Loader & Multi-Version Support
 This mod supports **multiple Minecraft versions and mod loaders**!
-- **1.21.1**: Fabric and NeoForge
+- **1.21.1–1.21.11**: Fabric, NeoForge, and Forge (except 1.21.2 which has no Forge release)
 - **1.20.1**: Fabric and Forge
 - Download the correct version for your Minecraft version and mod loader
 - Shared codebase ensures consistent experience across versions and loaders
 
 ### Requirements
-
-#### Minecraft 1.21.1
-- **Mod Loader**:
-  - Fabric Loader 0.17.3+ with Fabric API 0.116.7+1.21.1, OR
-  - NeoForge 21.1.209+
-
-#### Minecraft 1.20.1
-- **Mod Loader**:
-  - Fabric Loader 0.16.10+ with Fabric API 0.92.2+1.20.1, OR
-  - Forge 47.3.0+
+- **Fabric**: Fabric Loader 0.17.3+ (1.21.x) or 0.16.10+ (1.20.1), with corresponding Fabric API
+- **NeoForge**: Available for 1.21.1–1.21.11
+- **Forge**: Available for 1.20.1 and 1.21.1–1.21.11 (except 1.21.2)
 
 ### Compatibility
 - Works with most world generation mods
@@ -81,7 +74,7 @@ Check out the **Gallery** tab above for screenshots showcasing the castles!
 
 ## 🤝 Credits
 
-- Built with [Architectury Loom](https://github.com/architectury/architectury-loom)
+- Built with [Architectury Loom](https://github.com/architectury/architectury-loom) and [ForgeGradle](https://github.com/MinecraftForge/ForgeGradle)
 
 ---
 
@@ -106,6 +99,6 @@ Check out the **Gallery** tab above for screenshots showcasing the castles!
 
 ---
 
-**Developed for Minecraft Java Edition 1.21.1 / 1.20.1**
+**Developed for Minecraft Java Edition 1.20.1 / 1.21.1–1.21.11**
 
 Explore the castles that await you. 🏰

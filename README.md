@@ -22,21 +22,29 @@ A multi-loader Minecraft mod that generates multi-story stone brick castles acro
 
 ## Supported Versions
 
-| Minecraft | Mod Loader |
-|-----------|-----------|
-| 1.21.1 | Fabric Loader 0.17.3+ with Fabric API 0.116.7+1.21.1 |
-| 1.21.1 | NeoForge 21.1.209+ |
-| 1.21.1 | Forge 52.1.0+ |
-| 1.20.1 | Fabric Loader 0.16.10+ with Fabric API 0.92.2+1.20.1 |
-| 1.20.1 | Forge 47.3.0+ |
+| Minecraft | Fabric | NeoForge | Forge |
+|-----------|--------|----------|-------|
+| 1.21.11 | Yes | Yes | Yes |
+| 1.21.10 | Yes | Yes | Yes |
+| 1.21.9 | Yes | Yes | Yes |
+| 1.21.8 | Yes | Yes | Yes |
+| 1.21.7 | Yes | Yes | Yes |
+| 1.21.6 | Yes | Yes | Yes |
+| 1.21.5 | Yes | Yes | Yes |
+| 1.21.4 | Yes | Yes | Yes |
+| 1.21.3 | Yes | Yes | Yes |
+| 1.21.2 | Yes | Yes | — |
+| 1.21.1 | Yes | Yes | Yes |
+| 1.20.1 | Yes | — | Yes |
 
 ## Requirements
 
 ### For Players
-- **Minecraft**: Java Edition 1.21.1 or 1.20.1
+- **Minecraft**: Java Edition (see [Supported Versions](#supported-versions))
 - **Mod Loader** (choose one for your Minecraft version):
-  - **1.21.1**: Fabric Loader 0.17.3+ with Fabric API 0.116.7+1.21.1, OR NeoForge 21.1.209+, OR Forge 52.1.0+
-  - **1.20.1**: Fabric Loader 0.16.10+ with Fabric API 0.92.2+1.20.1, OR Forge 47.3.0+
+  - **Fabric**: Fabric Loader 0.17.3+ (1.21.x) or 0.16.10+ (1.20.1), with corresponding Fabric API
+  - **NeoForge**: Available for 1.21.1–1.21.11
+  - **Forge**: Available for 1.20.1 and 1.21.1–1.21.11 (except 1.21.2)
 
 ### For Developers
 - **Java Development Kit (JDK)**: 21 or higher
@@ -52,17 +60,13 @@ cd CastleShift
 
 **Build for a specific version**:
 ```bash
-./gradlew build -Ptarget_mc_version=1.20.1
+./gradlew build -Ptarget_mc_version=1.21.4
 ```
 
-**Output Files** (1.21.1):
-- `fabric/1.21.1/build/libs/castleshift-0.1.0+1.21.1-fabric.jar` - Fabric loader JAR
-- `neoforge/1.21.1/build/libs/castleshift-0.1.0+1.21.1-neoforge.jar` - NeoForge loader JAR
-- `forge/1.21.1/build/libs/castleshift-0.1.0+1.21.1-forge.jar` - Forge loader JAR
-
-**Output Files** (1.20.1):
-- `fabric/1.20.1/build/libs/castleshift-0.1.0+1.20.1-fabric.jar` - Fabric loader JAR
-- `forge/1.20.1/build/libs/castleshift-0.1.0+1.20.1-forge.jar` - Forge loader JAR
+**Output Files** (example for 1.21.4):
+- `fabric/1.21.4/build/libs/castleshift-0.1.0+1.21.4-fabric.jar` - Fabric loader JAR
+- `neoforge/1.21.4/build/libs/castleshift-0.1.0+1.21.4-neoforge.jar` - NeoForge loader JAR
+- `forge/1.21.4/build/libs/castleshift-0.1.0+1.21.4-forge.jar` - Forge loader JAR
 
 **Multi-version tasks**:
 ```bash
@@ -84,59 +88,30 @@ cd CastleShift
 ### Run in Development Environment
 
 ```bash
-# Fabric client (1.21.1)
+# Fabric client (default version: 1.21.1)
 ./gradlew fabric:runClient
 
-# NeoForge client (1.21.1)
+# NeoForge client
 ./gradlew neoforge:runClient
 
-# Forge client (1.21.1)
+# Forge client
 ./gradlew forge:runClient
 
-# Fabric client (1.20.1)
-./gradlew fabric:runClient -Ptarget_mc_version=1.20.1
-
-# Forge client (1.20.1)
+# Specify a different version
+./gradlew fabric:runClient -Ptarget_mc_version=1.21.4
 ./gradlew forge:runClient -Ptarget_mc_version=1.20.1
 ```
 
 ## Installation
 
-### For Minecraft 1.21.1
-
-#### Fabric
-1. Install Minecraft 1.21.1
-2. Install Fabric Loader 0.17.3+
-3. Download and install Fabric API 0.116.7+1.21.1
-4. Copy the Fabric JAR to `.minecraft/mods/` folder
-5. Launch Minecraft with Fabric profile
-
-#### NeoForge
-1. Install Minecraft 1.21.1
-2. Install NeoForge 21.1.209+
-3. Copy the NeoForge JAR to `.minecraft/mods/` folder
-4. Launch Minecraft with NeoForge profile
-
-#### Forge
-1. Install Minecraft 1.21.1
-2. Install Forge 52.1.0+
-3. Copy the Forge JAR to `.minecraft/mods/` folder
-4. Launch Minecraft with Forge profile
-
-### For Minecraft 1.20.1
-
-#### Fabric
-1. Install Minecraft 1.20.1
-2. Install Fabric Loader 0.16.10+
-3. Download and install Fabric API 0.92.2+1.20.1
-4. Copy the Fabric JAR to `.minecraft/mods/` folder
-5. Launch Minecraft with Fabric profile
-
-#### Forge
-1. Install Minecraft 1.20.1
-2. Install Forge 47.3.0+
-3. Copy the Forge JAR to `.minecraft/mods/` folder
-4. Launch Minecraft with Forge profile
+1. Install the desired Minecraft version (see [Supported Versions](#supported-versions))
+2. Install a supported mod loader for that version:
+   - **Fabric**: Install Fabric Loader, then download the matching Fabric API
+   - **NeoForge**: Install the matching NeoForge version
+   - **Forge**: Install the matching Forge version
+3. Download the Castle Shift JAR for your Minecraft version and mod loader from [Modrinth](https://modrinth.com/mod/castle-shift) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/castle-shift)
+4. Copy the JAR to your `.minecraft/mods/` folder
+5. Launch Minecraft with the corresponding mod loader profile
 
 ## Project Structure
 
@@ -144,7 +119,7 @@ cd CastleShift
 CastleShift/
 ├── common/
 │   ├── shared/              # Shared version-agnostic sources (included via srcDir)
-│   ├── 1.21.1/              # Common module for MC 1.21.1
+│   ├── 1.21.1/              # Common module for MC 1.21.1 (also used by 1.21.2–1.21.11)
 │   │   └── src/main/
 │   │       ├── java/com/castleshift/
 │   │       │   ├── CastleShift.java       # Common entry point
@@ -157,14 +132,17 @@ CastleShift/
 ├── fabric/
 │   ├── base/                # Shared Fabric sources
 │   ├── 1.21.1/              # Fabric subproject for MC 1.21.1
+│   ├── 1.21.2/ ... 1.21.11/ # Fabric subprojects for other 1.21.x versions
 │   └── 1.20.1/              # Fabric subproject for MC 1.20.1
 ├── neoforge/
 │   ├── base/                # Shared NeoForge sources
-│   └── 1.21.1/              # NeoForge subproject for MC 1.21.1
+│   ├── 1.21.1/              # NeoForge subproject for MC 1.21.1
+│   └── 1.21.2/ ... 1.21.11/ # NeoForge subprojects for other 1.21.x versions
 ├── forge/
 │   ├── base/                # Shared Forge sources
 │   ├── base-56/             # Forge 56+ sources (MC 1.21.6+, EventBus 7)
 │   ├── 1.21.1/              # Forge subproject for MC 1.21.1 (ForgeGradle)
+│   ├── 1.21.3/ ... 1.21.11/ # Forge subprojects for other 1.21.x versions
 │   └── 1.20.1/              # Forge subproject for MC 1.20.1 (Architectury Loom)
 ├── props/                   # Version-specific properties
 ├── scripts/                 # Build and release scripts
@@ -200,4 +178,4 @@ For issues, feature requests, or questions:
 
 ---
 
-**Developed for Minecraft Java Edition 1.21.1 / 1.20.1**
+**Developed for Minecraft Java Edition 1.20.1 / 1.21.1–1.21.11**
