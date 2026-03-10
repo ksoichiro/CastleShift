@@ -18,6 +18,11 @@ sourceSets {
             srcDir 'build/generated/data'
         }
     }
+    test {
+        java {
+            srcDir '../shared/src/test/java'
+        }
+    }
 }
 
 dependencies {
@@ -25,6 +30,12 @@ dependencies {
     // which get remapped to the correct annotations on each platform.
     // Do NOT use other classes from Fabric Loader.
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 // Copy shared data files (structures, worldgen, loot tables) from 1.21.1
