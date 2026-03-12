@@ -20,6 +20,9 @@
     ],
     "client": [
       "com.castleshift.fabric.CastleShiftFabricClient"
+    ],
+    "fabric-gametest": [
+      "com.castleshift.fabric.gametest.CastleShiftGameTests"
     ]
   },
   "accessWidener": "castleshift.accesswidener",
