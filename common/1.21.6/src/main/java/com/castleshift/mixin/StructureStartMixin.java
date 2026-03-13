@@ -3,8 +3,8 @@ package com.castleshift.mixin;
 import com.castleshift.world.processor.MaterialCombination;
 import com.castleshift.world.processor.RoofMaterialContext;
 import com.castleshift.world.processor.StairMaterialContext;
+import com.castleshift.world.processor.StructureMaterialHelper;
 import com.castleshift.world.processor.WallMaterialContext;
-import com.castleshift.world.processor.WallMaterialProcessor;
 import com.castleshift.world.processor.WallWeatheringContext;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
@@ -26,20 +26,13 @@ public class StructureStartMixin {
             RandomSource random, BoundingBox boundingBox, ChunkPos chunkPos, CallbackInfo ci) {
         StructureStart self = (StructureStart) (Object) this;
         net.minecraft.core.BlockPos center = self.getBoundingBox().getCenter();
-        long seed = level.getSeed() ^ (center.getX() * 341873128712L + center.getZ() * 132897987541L);
-        int combinationIndex = (int) (Math.abs(seed) % MaterialCombination.combinationCount());
+        long seed = StructureMaterialHelper.deriveSeed(level.getSeed(), center.getX(), center.getZ());
+        int combinationIndex = StructureMaterialHelper.combinationIndex(seed);
         MaterialCombination combination = MaterialCombination.get(combinationIndex);
         RoofMaterialContext.set(combination.roofIndex());
         WallMaterialContext.set(combination.wallIndex());
         StairMaterialContext.set(combination.stairIndex());
-        if (combination.wallIndex() == WallMaterialProcessor.STONE_BRICKS
-                || combination.wallIndex() == WallMaterialProcessor.POLISHED_BLACKSTONE_BRICKS) {
-            long weatheringSeed = seed ^ 0x9E3779B97F4A7C15L;
-            boolean weatheringEnabled = (Math.abs(weatheringSeed) % 2) == 0;
-            WallWeatheringContext.set(weatheringEnabled);
-        } else {
-            WallWeatheringContext.set(false);
-        }
+        WallWeatheringContext.set(StructureMaterialHelper.isWeatheringEnabled(combination, seed));
     }
 
     @Inject(method = "placeInChunk", at = @At("RETURN"))
