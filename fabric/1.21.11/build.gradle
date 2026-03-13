@@ -64,6 +64,7 @@ loom {
 }
 
 processResources {
+    dependsOn project(commonModule).tasks.named("copySharedData")
     from(project(commonModule).sourceSets.main.resources)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 

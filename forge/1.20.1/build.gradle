@@ -74,7 +74,6 @@ tasks.named("processResources", ProcessResources).configure {
     from(project(commonModule).sourceSets.main.resources) {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         exclude "fabric.mod.json"
-        exclude "castleshift.mixins.json"
         exclude "architectury.common.json"
     }
 

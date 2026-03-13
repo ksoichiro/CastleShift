@@ -116,8 +116,6 @@ tasks.named("processResources", ProcessResources).configure {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
     exclude "castleshift.accesswidener"
-    // Forge uses its own mixin config via JAR manifest, exclude common's copy
-    exclude "castleshift.mixins.json"
 }
 
 jar {

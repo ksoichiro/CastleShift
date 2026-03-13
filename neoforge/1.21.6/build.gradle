@@ -60,6 +60,7 @@ dependencies {
 }
 
 tasks.named("processResources", ProcessResources).configure {
+    dependsOn project(commonModule).tasks.named("copySharedData")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.property "version", project.version
 
