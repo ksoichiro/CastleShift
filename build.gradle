@@ -1,6 +1,8 @@
 plugins {
-    id 'dev.architectury.loom' version '1.13-SNAPSHOT' apply false
-    id 'architectury-plugin' version '3.4-SNAPSHOT'
+    id 'dev.architectury.loom' version '1.17-SNAPSHOT' apply false
+    // loom-no-remap is used for non-obfuscated MC versions (26.x+) which ship without Mojang mappings
+    id 'dev.architectury.loom-no-remap' version '1.17-SNAPSHOT' apply false
+    id 'architectury-plugin' version '3.5-SNAPSHOT'
     id 'com.gradleup.shadow' version '8.3.6' apply false
     id 'net.minecraftforge.gradle' version "${forgegradle_version}" apply false
 }
@@ -43,9 +45,17 @@ allprojects {
 subprojects {
     // Forge with forge_major_version uses ForgeGradle directly (not Loom/Architectury)
     def useForgeGradle = (project.name == 'forge' && rootProject.ext.has('forge_major_version'))
+    // MC 26.x+ ships without obfuscation: use loom-no-remap instead of loom
+    def useMojangMappings = rootProject.ext.has('use_mojang_mappings')
+            ? rootProject.ext.use_mojang_mappings != 'false'
+            : true
 
     if (!useForgeGradle) {
-        apply plugin: 'dev.architectury.loom'
+        if (useMojangMappings) {
+            apply plugin: 'dev.architectury.loom'
+        } else {
+            apply plugin: 'dev.architectury.loom-no-remap'
+        }
         apply plugin: 'architectury-plugin'
     } else {
         apply plugin: 'java'
@@ -85,7 +95,10 @@ subprojects {
     if (!useForgeGradle) {
         dependencies {
             minecraft "com.mojang:minecraft:$rootProject.ext.minecraft_version"
-            mappings loom.officialMojangMappings()
+            // Only add Mojang mappings for obfuscated MC versions (pre-26.x)
+            if (useMojangMappings) {
+                mappings loom.officialMojangMappings()
+            }
         }
     }
 
