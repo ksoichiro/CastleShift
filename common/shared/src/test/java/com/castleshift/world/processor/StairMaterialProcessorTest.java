@@ -8,7 +8,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +24,7 @@ class StairMaterialProcessorTest extends McBootstrapTestBase {
     }
 
     private StructureTemplate.StructureBlockInfo process(StructureTemplate.StructureBlockInfo info) {
-        return StairMaterialProcessor.INSTANCE.processBlock(
-                null, BlockPos.ZERO, BlockPos.ZERO, info, info, new StructurePlaceSettings());
+        return ProcessorTestInvoker.process(StairMaterialProcessor.INSTANCE, info);
     }
 
     @Test

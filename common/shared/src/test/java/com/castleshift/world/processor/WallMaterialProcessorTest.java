@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,7 @@ class WallMaterialProcessorTest extends McBootstrapTestBase {
     }
 
     private StructureTemplate.StructureBlockInfo process(StructureTemplate.StructureBlockInfo info) {
-        return WallMaterialProcessor.INSTANCE.processBlock(
-                null, BlockPos.ZERO, BlockPos.ZERO, info, info, new StructurePlaceSettings());
+        return ProcessorTestInvoker.process(WallMaterialProcessor.INSTANCE, info);
     }
 
     @Test

@@ -15,6 +15,7 @@ sourceSets {
     }
     test {
         java {
+            srcDir 'src/test/java'
             srcDir '../shared/src/test/java'
         }
     }

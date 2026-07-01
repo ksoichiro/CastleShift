@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +25,7 @@ class RoofMaterialProcessorTest extends McBootstrapTestBase {
     }
 
     private StructureTemplate.StructureBlockInfo process(StructureTemplate.StructureBlockInfo info) {
-        return RoofMaterialProcessor.INSTANCE.processBlock(
-                null, BlockPos.ZERO, BlockPos.ZERO, info, info, new StructurePlaceSettings());
+        return ProcessorTestInvoker.process(RoofMaterialProcessor.INSTANCE, info);
     }
 
     @Test
@@ -122,8 +120,7 @@ class RoofMaterialProcessorTest extends McBootstrapTestBase {
         BlockPos pos = new BlockPos(10, 20, 30);
         StructureTemplate.StructureBlockInfo info =
                 new StructureTemplate.StructureBlockInfo(pos, Blocks.SPRUCE_PLANKS.defaultBlockState(), null);
-        StructureTemplate.StructureBlockInfo result = RoofMaterialProcessor.INSTANCE.processBlock(
-                null, BlockPos.ZERO, BlockPos.ZERO, info, info, new StructurePlaceSettings());
+        StructureTemplate.StructureBlockInfo result = ProcessorTestInvoker.process(RoofMaterialProcessor.INSTANCE, info);
         assertEquals(pos, result.pos());
     }
 }

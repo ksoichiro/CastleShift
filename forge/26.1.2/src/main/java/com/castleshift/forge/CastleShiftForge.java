@@ -5,9 +5,8 @@ import com.castleshift.world.processor.ModProcessors;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-// MC 26.x: BuiltInRegistries.STRUCTURE_PROCESSOR changed from Registry<StructureProcessorType<?>>
-// to Registry<MapCodec<? extends StructureProcessor>>. DeferredRegister<StructureProcessorType<?>>
-// no longer applies; registration is done directly via ModProcessors.init().
+// MC 26.1.2: BuiltInRegistries.STRUCTURE_PROCESSOR is Registry<StructureProcessorType<?>> (same as 1.21.x).
+// Registration is done directly via ModProcessors.init() rather than DeferredRegister.
 @Mod(CastleShift.MOD_ID)
 public class CastleShiftForge {
     @SuppressWarnings("removal")
