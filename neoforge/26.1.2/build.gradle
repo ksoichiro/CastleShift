@@ -24,11 +24,13 @@ configurations {
 
 def commonModule = ':common-26.1.2'
 
-// MC 26.x-specific sourceSets: do NOT include base/ because CastleShiftNeoForge
-// is overridden here to match the MC 26.x API (StructureProcessorType -> MapCodec).
+// MC 26.1.2: StructureProcessorType<?> API is the same as 1.21.x, so the base
+// NeoForge entrypoint (which uses DeferredRegister<StructureProcessorType<?>>) can
+// be reused directly. No version-specific entrypoint override needed.
 sourceSets {
     main {
         java {
+            srcDir '../base/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

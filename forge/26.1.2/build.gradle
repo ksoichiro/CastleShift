@@ -40,10 +40,10 @@ sourceSets {
         java {
             srcDir '../../common/shared/src/main/java'
             srcDir "../../common/${project.ext.minecraft_version}/src/main/java"
-            // MC 26.x: base-56 entrypoint is NOT included here because
-            // CastleShiftForge.java in src/main/java overrides it with the MC 26.x
-            // API (StructureProcessorType -> MapCodec via ModProcessors.init()).
-            // base-56 still compiles for other versions (1.21.6+) that depend on it.
+            // MC 26.1.2: forge_major_version=64 >= 56, so base-56 applies.
+            // StructureProcessorType<?> API is unchanged vs 1.21.x; the base-56
+            // entrypoint (DeferredRegister<StructureProcessorType<?>>) is reused directly.
+            srcDir '../base-56/src/main/java'
             srcDir 'src/main/java'
         }
         resources {
