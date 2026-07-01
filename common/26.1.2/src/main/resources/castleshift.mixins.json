@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.castleshift.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "StructureStartMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

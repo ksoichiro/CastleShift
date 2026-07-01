@@ -1,0 +1,127 @@
+apply plugin: 'net.minecraftforge.gradle'
+
+def forgeMajor = project.ext.forge_major_version as int
+
+// Data files are in common/1.21.1/src/main/resources/data/ directly.
+// Other versions copy from 1.21.1 at build time (same as common module's copySharedData).
+def commonResDir = "../../common/${project.ext.minecraft_version}/src/main/resources"
+def dataSourceDir = rootProject.file('common/1.21.1/src/main/resources/data')
+def hasOwnData = file("${commonResDir}/data").exists()
+
+if (!hasOwnData) {
+    tasks.register('copySharedData', Copy) {
+        from dataSourceDir
+        into layout.buildDirectory.dir('generated/data/data')
+    }
+}
+
+minecraft {
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            // macOS requires -XstartOnFirstThread for GLFW; FG7 does not auto-add it
+            // unlike Fabric Loom and ModDevGradle.
+            if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+                jvmArgs '-XstartOnFirstThread'
+            }
+        }
+        register('client')
+    }
+}
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir '../../common/shared/src/main/java'
+            srcDir "../../common/${project.ext.minecraft_version}/src/main/java"
+            // MC 26.x: base-56 entrypoint is NOT included here because
+            // CastleShiftForge.java in src/main/java overrides it with the MC 26.x
+            // API (StructureProcessorType -> MapCodec via ModProcessors.init()).
+            // base-56 still compiles for other versions (1.21.6+) that depend on it.
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDirs = []
+            // Version-specific forge resources FIRST (higher priority)
+            srcDir 'src/main/resources'
+            // Shared forge base resources
+            srcDir '../base/src/main/resources'
+            // Common version-specific resources
+            srcDir commonResDir
+            // Generated data files (copied from 1.21.1 for other versions)
+            if (!hasOwnData) {
+                srcDir layout.buildDirectory.dir('generated/data')
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${project.ext.minecraft_version}-${project.ext.forge_version}")
+
+    // Forge 56+: EventBus 7 compile-time validation
+    if (forgeMajor >= 56) {
+        annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
+    }
+}
+
+// Merge resources and classes into the same directory for JPMS module support
+// (All migrated versions are >=52, so this applies unconditionally)
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}
+
+tasks.named("processResources", ProcessResources).configure {
+    if (!hasOwnData) {
+        dependsOn 'copySharedData'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+
+    // Exclude Fabric/Architectury-specific files from common resources
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+    exclude "castleshift.accesswidener"
+}
+
+jar {
+    manifest {
+        attributes([
+                "MixinConfigs"           : "castleshift.mixins.json",
+                "Specification-Title"    : "castleshift",
+                "Specification-Vendor"   : "castleshift",
+                "Specification-Version"  : "1",
+                "Implementation-Title"   : project.name,
+                "Implementation-Version" : project.version,
+                "Implementation-Vendor"  : "castleshift",
+        ])
+    }
+
+    archiveBaseName = rootProject.archives_name
+    archiveVersion = "${rootProject.mod_version}+${project.ext.minecraft_version}-forge"
+    archiveClassifier = ''
+}
+
+publishing {
+    publications {
+        mavenForge(MavenPublication) {
+            artifactId = "${rootProject.archives_name}-forge"
+            artifact jar
+        }
+    }
+
+    repositories {
+    }
+}
