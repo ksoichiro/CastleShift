@@ -47,7 +47,7 @@ if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
         }
     }
 
-    tasks.register('convertNbtStructures', Exec) {
+    tasks.register('convertNbtStructures', com.castleshift.buildsrc.ConvertNbtStructuresTask) {
         group = 'build'
         description = 'Convert NBT structure files from 1.21.1 to 1.20.1 format'
 
@@ -57,46 +57,8 @@ if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
 
         // TODO: Update 'castleshift' to your mod ID in both paths below.
         // 1.21.1 uses 'structure' (singular), 1.20.1 uses 'structures' (plural)
-        def inputDir = rootProject.file('common/1.21.1/src/main/resources/data/castleshift/structure')
-        def outputDir = file('build/generated/nbt/data/castleshift/structures')
-        def scriptPath = rootProject.file('scripts/convert_nbt_1_21_to_1_20.py')
-
-        inputs.dir(inputDir).optional()
-        inputs.file(scriptPath)
-        outputs.dir(outputDir)
-
-        doFirst {
-            try {
-                exec {
-                    commandLine 'python3', '-c', 'import nbtlib'
-                    standardOutput = new ByteArrayOutputStream()
-                    errorOutput = new ByteArrayOutputStream()
-                }
-            } catch (Exception e) {
-                throw new GradleException(
-                    'Python 3 with nbtlib is required for NBT conversion. ' +
-                    'Install with: pip3 install nbtlib'
-                )
-            }
-
-            if (!inputDir.exists()) {
-                logger.warn("Input directory does not exist: ${inputDir}")
-                logger.warn("Skipping NBT conversion")
-                return
-            }
-
-            if (!scriptPath.exists()) {
-                throw new GradleException("NBT conversion script not found: ${scriptPath}")
-            }
-
-            logger.lifecycle('')
-            logger.lifecycle('Converting NBT structures from 1.21.1 to 1.20.1 format...')
-            logger.lifecycle("  Input:  ${inputDir}")
-            logger.lifecycle("  Output: ${outputDir}")
-            logger.lifecycle('')
-        }
-
-        commandLine 'python3', scriptPath.absolutePath, '--batch', inputDir.absolutePath, outputDir.absolutePath
+        inputDir.set(rootProject.file('common/1.21.1/src/main/resources/data/castleshift/structure'))
+        outputDir.set(file('build/generated/nbt/data/castleshift/structures'))
     }
 
     processResources.dependsOn convertNbtStructures
@@ -118,7 +80,7 @@ if (rootProject.findProperty('enable_data_copy') == 'true') {
         }
     }
 
-    tasks.register('copyDataFiles', Exec) {
+    tasks.register('copyDataFiles', com.castleshift.buildsrc.CopyDataFilesTask) {
         group = 'build'
         description = 'Copy JSON data files from 1.21.1 to 1.20.1 with directory renaming'
 
@@ -126,33 +88,8 @@ if (rootProject.findProperty('enable_data_copy') == 'true') {
             project.ext.minecraft_version == '1.20.1'
         }
 
-        def inputDir = rootProject.file('common/1.21.1/src/main/resources/data/castleshift')
-        def outputDir = file('build/generated/data/data/castleshift')
-        def scriptPath = rootProject.file('scripts/copy_data_1_21_to_1_20.py')
-
-        inputs.dir(inputDir).optional()
-        inputs.file(scriptPath)
-        outputs.dir(outputDir)
-
-        doFirst {
-            if (!inputDir.exists()) {
-                logger.warn("Input directory does not exist: ${inputDir}")
-                logger.warn("Skipping data file copy")
-                return
-            }
-
-            if (!scriptPath.exists()) {
-                throw new GradleException("Data copy script not found: ${scriptPath}")
-            }
-
-            logger.lifecycle('')
-            logger.lifecycle('Copying data files from 1.21.1 to 1.20.1...')
-            logger.lifecycle("  Input:  ${inputDir}")
-            logger.lifecycle("  Output: ${outputDir}")
-            logger.lifecycle('')
-        }
-
-        commandLine 'python3', scriptPath.absolutePath, inputDir.absolutePath, outputDir.absolutePath
+        inputDir.set(rootProject.file('common/1.21.1/src/main/resources/data/castleshift'))
+        outputDir.set(file('build/generated/data/data/castleshift'))
     }
 
     processResources.dependsOn copyDataFiles
