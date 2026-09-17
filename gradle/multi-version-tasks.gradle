@@ -1,6 +1,14 @@
 // Multi-version build tasks
 // Defines custom Gradle tasks for building the mod across multiple Minecraft versions.
 
+// Gradle 9 removed Project.exec(); nested gradlew invocations must go through an injected
+// ExecOperations instead (https://docs.gradle.org/9.6.1/userguide/upgrading_version_8.html).
+interface ExecOpsProvider {
+    @javax.inject.Inject
+    ExecOperations getExecOps()
+}
+def execOps = project.objects.newInstance(ExecOpsProvider).execOps
+
 def supportedVersions = ['26.3', '26.2', '26.1.2', '1.21.11', '1.21.10', '1.21.9', '1.21.8', '1.21.7', '1.21.6', '1.21.5', '1.21.4', '1.21.3', '1.21.2', '1.21.1', '1.20.1']
 def taskGroup = 'mod build'
 
@@ -16,7 +24,7 @@ supportedVersions.each { version ->
         description = "Clean build outputs for Minecraft ${version}"
 
         doLast {
-            project.exec {
+            execOps.exec {
                 commandLine './gradlew', 'clean', "-Ptarget_mc_version=${version}"
             }
         }
@@ -31,7 +39,7 @@ tasks.register('cleanAll') {
         supportedVersions.each { version ->
             logger.lifecycle(">>> Cleaning for Minecraft ${version}...")
 
-            project.exec {
+            execOps.exec {
                 commandLine './gradlew', 'clean', "-Ptarget_mc_version=${version}"
             }
         }
@@ -61,7 +69,7 @@ supportedVersions.each { version ->
         }
 
         doLast {
-            project.exec {
+            execOps.exec {
                 commandLine './gradlew', 'clean', 'build', "-Ptarget_mc_version=${version}", '-x', 'test'
             }
         }
@@ -90,7 +98,7 @@ tasks.register('buildAll') {
             logger.lifecycle('')
 
             try {
-                project.exec {
+                execOps.exec {
                     commandLine './gradlew', 'clean', 'build', "-Ptarget_mc_version=${version}", '-x', 'test'
                     errorOutput = System.err
                 }
@@ -136,7 +144,7 @@ supportedVersions.each { version ->
         description = "Run tests for Minecraft ${version}"
 
         doLast {
-            project.exec {
+            execOps.exec {
                 commandLine './gradlew', ":common-${version}:test", "-Ptarget_mc_version=${version}"
             }
         }
@@ -165,7 +173,7 @@ tasks.register('testAll') {
             logger.lifecycle('')
 
             try {
-                project.exec {
+                execOps.exec {
                     commandLine './gradlew', ":common-${version}:test", "-Ptarget_mc_version=${version}"
                     errorOutput = System.err
                 }
@@ -209,7 +217,7 @@ tasks.register('release') {
 
     doLast {
         ['cleanAll', 'buildAll', 'collectJars'].each { taskName ->
-            project.exec {
+            execOps.exec {
                 commandLine './gradlew', taskName
             }
         }
