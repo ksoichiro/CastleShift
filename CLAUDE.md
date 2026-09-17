@@ -20,6 +20,7 @@ A structure mod for Minecraft that adds castles to the world. Multi-loader, mult
 
 Supported versions:
 - 26.1.2, 26.2: Fabric, NeoForge, Forge (Minecraft's year-based versioning; requires JDK 25)
+- 26.3: Fabric, NeoForge (Forge not yet released upstream for this version)
 - 1.21.1〜1.21.11: Fabric, NeoForge, Forge (except 1.21.2 which has no Forge release)
 - 1.20.1: Fabric, Forge
 
@@ -62,7 +63,7 @@ Supported versions:
 - ResourceLocation: 1.21 uses `fromNamespaceAndPath()`, 1.20.1 uses constructor
 - Codec: 1.21 uses `MapCodec`, 1.20.1 uses `Codec`
 
-### Minecraft 26.x notes (26.1.2, 26.2)
+### Minecraft 26.x notes (26.1.2, 26.2, 26.3)
 
 - **Toolchain**: requires JDK 25, Gradle 9, and Architectury Loom 1.17 with the `loom-no-remap` plugin (26.x ships non-obfuscated, so `use_mojang_mappings=false` in props routes to `loom-no-remap`; 1.20.1/1.21.x keep official Mojang mappings). Forge uses ForgeGradle 7 (see Forge Build System).
 - **StructureProcessor API split**: 26.2 made `StructureProcessor` an interface (`codec()`, `processBlock(..., BlockPos offset, blockInfo, ...)`), and `BuiltInRegistries.STRUCTURE_PROCESSOR` holds `MapCodec<? extends StructureProcessor>`. 26.1.2 still uses the class-based form (`extends StructureProcessor`, `getType()`, two-info `processBlock`, `StructureProcessorType<?>` registry) like 1.21.x.

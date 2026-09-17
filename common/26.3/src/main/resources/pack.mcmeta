@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "Castle Shift",
+    "min_format": ${pack_format},
+    "max_format": ${pack_format}
+  }
+}

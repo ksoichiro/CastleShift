@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Minecraft 26.1.2 and 26.2 support (Fabric, NeoForge, Forge)
+- Minecraft 26.3 support (Fabric, NeoForge; Forge pending upstream release)
 
 ### Changed
 - Migrated Forge builds from ForgeGradle 6 to ForgeGradle 7 and upgraded the build toolchain to Gradle 9 (Minecraft 26.x requires JDK 25)

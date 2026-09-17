@@ -24,6 +24,7 @@ A multi-loader Minecraft mod that generates multi-story stone brick castles acro
 
 | Minecraft | Fabric | NeoForge | Forge |
 |-----------|--------|----------|-------|
+| 26.3 | Yes | Yes | — |
 | 26.2 | Yes | Yes | Yes |
 | 26.1.2 | Yes | Yes | Yes |
 | 1.21.11 | Yes | Yes | Yes |
@@ -45,8 +46,8 @@ A multi-loader Minecraft mod that generates multi-story stone brick castles acro
 - **Minecraft**: Java Edition (see [Supported Versions](#supported-versions))
 - **Mod Loader** (choose one for your Minecraft version):
   - **Fabric**: Fabric Loader 0.19.3+ (26.x), 0.17.3+ (1.21.x) or 0.16.10+ (1.20.1), with corresponding Fabric API
-  - **NeoForge**: Available for 1.21.1–1.21.11 and 26.1.2, 26.2
-  - **Forge**: Available for 1.20.1, 1.21.1–1.21.11 (except 1.21.2), and 26.1.2, 26.2
+  - **NeoForge**: Available for 1.21.1–1.21.11 and 26.1.2, 26.2, 26.3
+  - **Forge**: Available for 1.20.1, 1.21.1–1.21.11 (except 1.21.2), and 26.1.2, 26.2 (26.3 not yet available upstream)
 
 ### For Developers
 - **Java Development Kit (JDK)**: 21 or higher (Minecraft 26.x requires JDK 25)

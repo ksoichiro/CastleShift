@@ -1,0 +1,129 @@
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
+configurations {
+    common {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+
+    shadowBundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+
+def commonModule = ':common-26.3'
+
+// MC 26.3-specific sourceSets: do NOT include base/ because CastleShiftNeoForge
+// is overridden here to match the MC 26.x API (StructureProcessorType -> MapCodec).
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+}
+
+loom {
+    if (project(commonModule).loom.accessWidenerPath != null) {
+        accessWidenerPath = project(commonModule).loom.accessWidenerPath
+    }
+
+    runs {
+        client {
+            client()
+            setConfigName("NeoForge Client")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+        server {
+            server()
+            setConfigName("NeoForge Server")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+    }
+}
+
+dependencies {
+    // loom-no-remap: neoForge configuration still declares the NeoForge loader
+    neoForge "net.neoforged:neoforge:${neoforge_version}"
+
+    // For loom-no-remap, use default project configuration (no 'namedElements' needed)
+    common(project(path: commonModule)) { transitive false }
+    shadowBundle project(path: commonModule, configuration: 'transformProductionNeoForge')
+}
+
+processResources {
+    dependsOn project(commonModule).tasks.named("copySharedData")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": project.version
+    }
+
+    from(project(commonModule).sourceSets.main.resources) {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        exclude "fabric.mod.json"
+        exclude "architectury.common.json"
+    }
+}
+
+// In loom-no-remap there is no remapJar; shadowJar is the primary output.
+jar {
+    archiveClassifier = 'raw'
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = null
+    archiveBaseName = rootProject.archives_name
+    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-neoforge"
+
+    dependsOn jar
+    mainSpec.sourcePaths.clear()
+    from(zipTree(jar.archiveFile))
+}
+
+assemble.dependsOn shadowJar
+
+tasks.named("sourcesJar").configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveBaseName = rootProject.archives_name
+    archiveVersion = "${rootProject.mod_version}+${rootProject.ext.minecraft_version}-neoforge"
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenNeoForge(MavenPublication) {
+            artifactId = "${archives_name}-neoforge"
+            from components.java
+        }
+    }
+
+    repositories {
+    }
+}
