@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-17
+
 ### Added
 - Minecraft 26.1.2 and 26.2 support (Fabric, NeoForge, Forge)
 - Minecraft 26.3 support (Fabric, NeoForge; Forge pending upstream release)
 
 ### Changed
 - Migrated Forge builds from ForgeGradle 6 to ForgeGradle 7 and upgraded the build toolchain to Gradle 9 (Minecraft 26.x requires JDK 25)
+
+### Fixed
+- Castle barrel loot table number providers now require an explicit type
 
 ## [0.2.0] - 2026-03-13
 
@@ -48,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fabric support for Minecraft 1.20.1, 1.21.1
 - NeoForge support for Minecraft 1.21.1
 
-[Unreleased]: https://github.com/ksoichiro/CastleShift/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ksoichiro/CastleShift/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ksoichiro/CastleShift/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ksoichiro/CastleShift/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ksoichiro/CastleShift/releases/tag/v0.1.0
