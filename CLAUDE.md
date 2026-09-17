@@ -19,6 +19,7 @@ A structure mod for Minecraft that adds castles to the world. Multi-loader, mult
 - `props/` - Version-specific properties files
 
 Supported versions:
+- 26.1.2, 26.2: Fabric, NeoForge, Forge (Minecraft's year-based versioning; requires JDK 25)
 - 1.21.1〜1.21.11: Fabric, NeoForge, Forge (except 1.21.2 which has no Forge release)
 - 1.20.1: Fabric, Forge
 
@@ -61,9 +62,18 @@ Supported versions:
 - ResourceLocation: 1.21 uses `fromNamespaceAndPath()`, 1.20.1 uses constructor
 - Codec: 1.21 uses `MapCodec`, 1.20.1 uses `Codec`
 
+### Minecraft 26.x notes (26.1.2, 26.2)
+
+- **Toolchain**: requires JDK 25, Gradle 9, and Architectury Loom 1.17 with the `loom-no-remap` plugin (26.x ships non-obfuscated, so `use_mojang_mappings=false` in props routes to `loom-no-remap`; 1.20.1/1.21.x keep official Mojang mappings). Forge uses ForgeGradle 7 (see Forge Build System).
+- **StructureProcessor API split**: 26.2 made `StructureProcessor` an interface (`codec()`, `processBlock(..., BlockPos offset, blockInfo, ...)`), and `BuiltInRegistries.STRUCTURE_PROCESSOR` holds `MapCodec<? extends StructureProcessor>`. 26.1.2 still uses the class-based form (`extends StructureProcessor`, `getType()`, two-info `processBlock`, `StructureProcessorType<?>` registry) like 1.21.x.
+- **Processor registration**: register on NeoForge/Forge via `DeferredRegister` on the mod event bus (NOT direct `Registry.register` in the constructor, which fails on the frozen registry). Fabric registers directly in `onInitialize` via `ModProcessors.init()`. For 26.2 the DeferredRegister element type is `MapCodec<? extends StructureProcessor>`.
+- **26.x Forge** omits the `forge/base-56` srcDir and ships a version-specific entrypoint (base-56 uses the removed `StructureProcessorType` API).
+- **pack.mcmeta** uses the array `pack_format` form (`min_format`/`max_format`, e.g. `[94, 1]`).
+- **Shared tests** call `processBlock` through the per-version `common/{version}/src/test/.../ProcessorTestInvoker.java` to absorb the 26.2 signature change.
+
 ### Forge Build System
 
-- **Forge 1.21.x** (Forge 52+): Uses **ForgeGradle** directly (`net.minecraftforge.gradle` plugin). Architectury Loom's `loom.platform = forge` has JPMS split package conflicts on 1.21+.
+- **Forge 1.21.x and 26.x** (Forge 52+): Uses **ForgeGradle** directly (`net.minecraftforge.gradle` plugin). Architectury Loom's `loom.platform = forge` has JPMS split package conflicts on 1.21+. ForgeGradle 7 (`[7.0.17,8.0)`) is required for Gradle 9 / 26.x; ForgeGradle 6 rejects Gradle 9.
 - **Forge 1.20.1** (Forge 47): Uses **Architectury Loom** with `loom.platform = forge` in `forge/1.20.1/gradle.properties`.
 - `forge_major_version` in `props/{version}.properties` controls ForgeGradle-specific conditional logic (reobf, JPMS, EventBus).
 
