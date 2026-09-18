@@ -1,0 +1,497 @@
+// NBT structure conversion and JSON data-file copy: 1.21.1 -> 1.20.1
+//
+// Ported from python3/nbtlib (removed) to pure Groovy/Java using the Querz NBT
+// library. Deliberately implemented as a plain applied script -- like
+// multi-version-tasks.gradle -- rather than a buildSrc/composite-build module:
+// adding any extra Gradle (sub)project or included build here, regardless of
+// name, broke Architectury Loom's NeoForge 1.21.1 dev-run mod discovery
+// (neoforge.mods.toml's version stopped resolving, see CLAUDE.md). A plain
+// applied script carries none of that risk since it doesn't add a project.
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+    dependencies {
+        classpath 'com.github.Querz:NBT:6.1'
+    }
+}
+
+import net.querz.nbt.io.NBTDeserializer
+import net.querz.nbt.io.NBTSerializer
+import net.querz.nbt.io.NamedTag
+import net.querz.nbt.tag.ByteTag
+import net.querz.nbt.tag.CompoundTag
+import net.querz.nbt.tag.ListTag
+import net.querz.nbt.tag.NumberTag
+import net.querz.nbt.tag.Tag
+
+import java.util.zip.GZIPOutputStream
+
+interface NbtConverter {
+    byte[] convert(byte[] input, int targetDataVersion)
+}
+
+/** Re-stamps DataVersion only; used when source and target formats already match. */
+class DefaultNbtConverter implements NbtConverter {
+
+    @Override
+    byte[] convert(byte[] input, int targetDataVersion) {
+        def namedTag = new NBTDeserializer(true).fromBytes(input)
+        def root = namedTag.getTag() as CompoundTag
+
+        root.putInt("DataVersion", targetDataVersion)
+
+        return serializeToBytes(namedTag)
+    }
+
+    /**
+     * Serialize a NamedTag to gzip-compressed bytes with deterministic output.
+     *
+     * The gzip stream is owned and closed here rather than left to
+     * NBTSerializer(true): that constructor wraps the output in a
+     * GZIPOutputStream and only flushes it, so the deflate trailer is never
+     * written. Querz's own reader tolerates the truncated result, but every
+     * other gzip consumer - Minecraft included - rejects it.
+     */
+    static byte[] serializeToBytes(NamedTag namedTag) {
+        def bos = new ByteArrayOutputStream()
+        new GZIPOutputStream(bos).withCloseable { gzip ->
+            new NBTSerializer(false).toStream(namedTag, gzip)
+        }
+        return bos.toByteArray()
+    }
+}
+
+/** Converts 1.21.1 structure NBT (data-components item format) to 1.20.1 format (legacy NBT tags). */
+class V1_21ToV1_20NbtConverter implements NbtConverter {
+
+    @Override
+    byte[] convert(byte[] input, int targetDataVersion) {
+        def namedTag = new NBTDeserializer(true).fromBytes(input)
+        def root = namedTag.getTag() as CompoundTag
+
+        root.putInt("DataVersion", targetDataVersion)
+
+        // Convert separate block_entities field
+        if (root.containsKey("block_entities")) {
+            def blockEntities = root.getListTag("block_entities")
+            if (blockEntities != null && blockEntities.size() > 0) {
+                def converted = new ListTag<>(CompoundTag.class)
+                for (int i = 0; i < blockEntities.size(); i++) {
+                    converted.add(convertBlockEntity(blockEntities.get(i) as CompoundTag))
+                }
+                root.put("block_entities", converted)
+            }
+        }
+
+        // Convert inline blocks[].nbt
+        if (root.containsKey("blocks")) {
+            def blocks = root.getListTag("blocks")
+            if (blocks != null) {
+                for (int i = 0; i < blocks.size(); i++) {
+                    def block = blocks.get(i) as CompoundTag
+                    if (block.containsKey("nbt")) {
+                        def blockNbt = block.getCompoundTag("nbt")
+                        if (blockNbt.containsKey("Items") || blockNbt.containsKey("Item")) {
+                            block.put("nbt", convertBlockEntity(blockNbt))
+                        }
+                    }
+                }
+            }
+        }
+
+        // Convert entities (item frames, armor stands, etc.)
+        if (root.containsKey("entities")) {
+            def entities = root.getListTag("entities")
+            if (entities != null) {
+                for (int i = 0; i < entities.size(); i++) {
+                    def entity = entities.get(i) as CompoundTag
+                    if (entity.containsKey("nbt")) {
+                        def nbt = entity.getCompoundTag("nbt")
+                        entity.put("nbt", convertEntityNbt(nbt))
+                    }
+                }
+            }
+        }
+
+        return DefaultNbtConverter.serializeToBytes(namedTag)
+    }
+
+    private static CompoundTag convertBlockEntity(CompoundTag blockEntity) {
+        def result = new CompoundTag()
+        blockEntity.entrySet().forEach { entry -> result.put(entry.getKey(), entry.getValue()) }
+
+        def items = blockEntity.containsKey("Items") ? blockEntity.getListTag("Items") : null
+        if (items != null && items.size() > 0) {
+            def convertedItems = new ListTag<>(CompoundTag.class)
+            for (int i = 0; i < items.size(); i++) {
+                def item = items.get(i) as CompoundTag
+                if (item.containsKey("item")) {
+                    // New 1.21.1 format: {slot, item: {id, count, components}}
+                    convertedItems.add(convertItem121To120(item))
+                } else {
+                    // Legacy/mixed format: {Slot, id, count}
+                    convertedItems.add(convertLegacyItemFormat(item))
+                }
+            }
+            result.put("Items", convertedItems)
+        }
+
+        // A singular "Item" field holds one stack instead of an inventory, in the shape
+        // item frames use: {id, count, components}. Vanilla block entities that hold a
+        // single stack keep it under other keys -- "item" for a decorated pot or a
+        // brushable block, "RecordItem" for a jukebox, "Book" for a lectern -- so this
+        // branch is here to match convertEntityNbt and the python converter it replaced,
+        // not because vanilla writes "Item" on a block entity today.
+        if (blockEntity.containsKey("Item")) {
+            def item = blockEntity.getCompoundTag("Item")
+            if (item != null) {
+                result.put("Item", convertSingleItem(item))
+            }
+        }
+
+        return result
+    }
+
+    private static CompoundTag convertItem121To120(CompoundTag item121) {
+        def item120 = new CompoundTag()
+
+        // slot (int) -> Slot (byte)
+        if (item121.containsKey("slot")) {
+            item120.putByte("Slot", (byte) item121.getInt("slot"))
+        }
+
+        // Extract item data from nested "item" field
+        def itemData = item121.getCompoundTag("item")
+        if (itemData == null) return item120
+
+        // id -> id (string)
+        if (itemData.containsKey("id")) {
+            item120.putString("id", itemData.getString("id"))
+        }
+
+        // count (int) -> Count (byte)
+        if (itemData.containsKey("count")) {
+            item120.putByte("Count", (byte) itemData.getInt("count"))
+        }
+
+        // components -> tag
+        if (itemData.containsKey("components")) {
+            def components = itemData.getCompoundTag("components")
+            if (components != null && components.size() > 0) {
+                def tagData = convertComponentsToTag(components)
+                if (tagData.size() > 0) {
+                    item120.put("tag", tagData)
+                }
+            }
+        }
+
+        return item120
+    }
+
+    private static CompoundTag convertLegacyItemFormat(CompoundTag item) {
+        def item120 = new CompoundTag()
+
+        // Copy Slot (ensure Byte type)
+        if (item.containsKey("Slot")) {
+            def slotTag = item.get("Slot")
+            if (slotTag instanceof ByteTag) {
+                item120.put("Slot", slotTag)
+            } else {
+                item120.putByte("Slot", (byte) ((NumberTag) slotTag).asInt())
+            }
+        }
+
+        // Copy id
+        if (item.containsKey("id")) {
+            item120.putString("id", item.getString("id"))
+        }
+
+        // count -> Count (byte)
+        if (item.containsKey("count")) {
+            item120.putByte("Count", (byte) item.getInt("count"))
+        } else if (item.containsKey("Count")) {
+            def countTag = item.get("Count")
+            if (countTag instanceof ByteTag) {
+                item120.put("Count", countTag)
+            } else {
+                item120.putByte("Count", (byte) ((NumberTag) countTag).asInt())
+            }
+        }
+
+        // Copy tag if present
+        if (item.containsKey("tag")) {
+            item120.put("tag", item.getCompoundTag("tag"))
+        }
+
+        return item120
+    }
+
+    private static CompoundTag convertEntityNbt(CompoundTag nbt) {
+        def result = new CompoundTag()
+        nbt.entrySet().forEach { entry -> result.put(entry.getKey(), entry.getValue()) }
+
+        // Convert single Item field (item frames)
+        if (nbt.containsKey("Item")) {
+            def item = nbt.getCompoundTag("Item")
+            if (item != null) {
+                result.put("Item", convertSingleItem(item))
+            }
+        }
+
+        // Convert ArmorItems / HandItems lists if present (armor stands)
+        ['ArmorItems', 'HandItems'].each { fieldName ->
+            if (nbt.containsKey(fieldName)) {
+                def items = nbt.getListTag(fieldName)
+                if (items != null) {
+                    def converted = new ListTag<>(CompoundTag.class)
+                    for (int i = 0; i < items.size(); i++) {
+                        converted.add(convertSingleItem(items.get(i) as CompoundTag))
+                    }
+                    result.put(fieldName, converted)
+                }
+            }
+        }
+
+        def id = nbt.getString("id")
+        // Current painting templates use `variant` and a horizontal `facing`.
+        // Legacy versions require `Motive` and call the same horizontal value
+        // `Facing`. This is distinct from item frames' six-direction Facing ID.
+        if (id == "minecraft:painting") {
+            if (nbt.containsKey("variant")) {
+                result.putString("Motive", nbt.getString("variant"))
+            }
+            if (nbt.containsKey("facing")) {
+                result.putByte("Facing", nbt.getByte("facing"))
+            }
+        }
+
+        return result
+    }
+
+    private static CompoundTag convertSingleItem(CompoundTag item121) {
+        def item120 = new CompoundTag()
+
+        if (item121.containsKey("id")) {
+            item120.putString("id", item121.getString("id"))
+        }
+
+        if (item121.containsKey("count")) {
+            item120.putByte("Count", (byte) item121.getInt("count"))
+        } else if (item121.containsKey("Count")) {
+            item120.put("Count", item121.get("Count"))
+        }
+
+        if (item121.containsKey("components")) {
+            def components = item121.getCompoundTag("components")
+            if (components != null && components.size() > 0) {
+                def tagData = convertComponentsToTag(components)
+                if (tagData.size() > 0) {
+                    item120.put("tag", tagData)
+                }
+            }
+        }
+
+        // Preserve existing tag if present
+        if (item121.containsKey("tag")) {
+            item120.put("tag", item121.getCompoundTag("tag"))
+        }
+
+        return item120
+    }
+
+    private static CompoundTag convertComponentsToTag(CompoundTag components) {
+        def tagData = new CompoundTag()
+
+        // minecraft:custom_data -> direct copy to tag
+        if (components.containsKey("minecraft:custom_data")) {
+            def customData = components.getCompoundTag("minecraft:custom_data")
+            if (customData != null) {
+                customData.entrySet().forEach { entry -> tagData.put(entry.getKey(), entry.getValue()) }
+            }
+        }
+
+        // minecraft:enchantments -> tag.Enchantments
+        if (components.containsKey("minecraft:enchantments")) {
+            def enchantComp = components.getCompoundTag("minecraft:enchantments")
+            if (enchantComp != null && enchantComp.containsKey("levels")) {
+                def levels = enchantComp.getCompoundTag("levels")
+                if (levels != null) {
+                    def enchantments = new ListTag<>(CompoundTag.class)
+                    levels.entrySet().forEach { entry ->
+                        def ench = new CompoundTag()
+                        ench.putString("id", entry.getKey())
+                        ench.putShort("lvl", (short) ((NumberTag) entry.getValue()).asInt())
+                        enchantments.add(ench)
+                    }
+                    tagData.put("Enchantments", enchantments)
+                }
+            }
+        }
+
+        // minecraft:custom_name / minecraft:lore -> tag.display
+        def displayData = new CompoundTag()
+        if (components.containsKey("minecraft:custom_name")) {
+            displayData.putString("Name", components.getString("minecraft:custom_name"))
+        }
+        if (components.containsKey("minecraft:lore")) {
+            displayData.put("Lore", components.get("minecraft:lore"))
+        }
+        if (displayData.size() > 0) {
+            tagData.put("display", displayData)
+        }
+
+        // minecraft:damage -> tag.Damage
+        if (components.containsKey("minecraft:damage")) {
+            tagData.putInt("Damage", components.getInt("minecraft:damage"))
+        }
+
+        // minecraft:unbreakable -> tag.Unbreakable
+        if (components.containsKey("minecraft:unbreakable")) {
+            def unbreakable = components.getCompoundTag("minecraft:unbreakable")
+            if (unbreakable != null) {
+                tagData.putByte("Unbreakable", (byte) 1)
+            }
+        }
+
+        return tagData
+    }
+}
+
+// ============================================================
+// Task registration (only relevant when building common/1.20.1)
+// ============================================================
+
+// NBT Structure Multi-Version Conversion
+// Converts 1.21.1 NBT structure files to 1.20.1 format.
+// To enable: set enable_nbt_conversion=true in gradle.properties
+// and update inputDir/outputDir paths to match your mod ID.
+if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
+    sourceSets {
+        main {
+            resources {
+                srcDir 'build/generated/nbt'
+            }
+        }
+    }
+
+    tasks.register('convertNbtStructures') {
+        group = 'build'
+        description = 'Convert NBT structure files from 1.21.1 to 1.20.1 format'
+
+        onlyIf {
+            project.ext.minecraft_version == '1.20.1'
+        }
+
+        // TODO: Update 'castleshift' to your mod ID in both paths below.
+        // 1.21.1 uses 'structure' (singular), 1.20.1 uses 'structures' (plural)
+        def inputDir = rootProject.file('common/1.21.1/src/main/resources/data/castleshift/structure')
+        def outputDir = file('build/generated/nbt/data/castleshift/structures')
+
+        inputs.dir(inputDir).optional()
+        outputs.dir(outputDir)
+
+        doLast {
+            if (!inputDir.exists()) {
+                logger.warn("Input directory does not exist: ${inputDir}")
+                logger.warn("Skipping NBT conversion")
+                return
+            }
+
+            def targetDataVersion = 3465
+            def converter = new V1_21ToV1_20NbtConverter()
+            def convertedCount = 0
+
+            fileTree(inputDir) { include '**/*.nbt' }.visit { details ->
+                if (details.directory) return
+                def outFile = new File(outputDir, details.relativePath.pathString)
+                outFile.parentFile.mkdirs()
+                outFile.bytes = converter.convert(details.file.bytes, targetDataVersion)
+                convertedCount++
+            }
+
+            logger.lifecycle("NBT conversion: converted ${convertedCount} file(s) to DataVersion ${targetDataVersion}")
+        }
+    }
+
+    processResources.dependsOn convertNbtStructures
+
+    tasks.named('sourcesJar') {
+        dependsOn convertNbtStructures
+    }
+}
+
+// Data File Copy (JSON): 1.21.1 → 1.20.1
+// Copies JSON data files with directory renaming (e.g. loot_table → loot_tables).
+// To enable: set enable_data_copy=true in gradle.properties
+if (rootProject.findProperty('enable_data_copy') == 'true') {
+    sourceSets {
+        main {
+            resources {
+                srcDir 'build/generated/data'
+            }
+        }
+    }
+
+    tasks.register('copyDataFiles') {
+        group = 'build'
+        description = 'Copy JSON data files from 1.21.1 to 1.20.1 with directory renaming'
+
+        onlyIf {
+            project.ext.minecraft_version == '1.20.1'
+        }
+
+        def inputDir = rootProject.file('common/1.21.1/src/main/resources/data/castleshift')
+        def outputDir = file('build/generated/data/data/castleshift')
+
+        // 1.21 (singular) -> 1.20 (plural)
+        def dirRenameMap = [
+            loot_table   : 'loot_tables',
+            structure    : 'structures',
+            advancement  : 'advancements',
+            recipe       : 'recipes',
+            predicate    : 'predicates',
+            item_modifier: 'item_modifiers',
+        ]
+
+        inputs.dir(inputDir).optional()
+        outputs.dir(outputDir)
+
+        doLast {
+            if (!inputDir.exists()) {
+                logger.warn("Input directory does not exist: ${inputDir}")
+                logger.warn("Skipping data file copy")
+                return
+            }
+
+            def copiedCount = 0
+
+            fileTree(inputDir) {
+                exclude '**/*.nbt'
+                exclude '**/.DS_Store'
+            }.visit { details ->
+                if (details.directory) return
+
+                def segments = details.relativePath.segments.clone()
+                def renamed = dirRenameMap[segments[0]]
+                if (renamed != null) {
+                    segments[0] = renamed
+                }
+                def destFile = new File(outputDir, segments.join(File.separator))
+                destFile.parentFile.mkdirs()
+                destFile.bytes = details.file.bytes
+                copiedCount++
+            }
+
+            logger.lifecycle("Data file copy: copied ${copiedCount} file(s)")
+        }
+    }
+
+    processResources.dependsOn copyDataFiles
+
+    tasks.named('sourcesJar') {
+        dependsOn copyDataFiles
+    }
+}

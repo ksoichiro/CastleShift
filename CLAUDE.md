@@ -85,7 +85,7 @@ Supported versions:
 
 ## Scripts
 
-- `buildSrc/` - Java Gradle tasks (`ConvertNbtStructuresTask`, `CopyDataFilesTask`) that convert structure NBT files and copy JSON data files from 1.21.1 to 1.20.1 format, wired into `common/1.20.1/build.gradle`
+- `gradle/nbt-conversion.gradle` - Converts structure NBT files and copies JSON data files from 1.21.1 to 1.20.1 format, applied from `common/1.20.1/build.gradle`
 - `scripts/release.sh` - Upload a single JAR to Modrinth
 - `scripts/release-all.sh` - Upload all JARs in `build/release/` to Modrinth
 - `scripts/release-curseforge.sh` - Upload a single JAR to CurseForge

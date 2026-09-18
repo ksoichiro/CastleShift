@@ -34,70 +34,9 @@ test {
     useJUnitPlatform()
 }
 
-// NBT Structure Multi-Version Conversion
-// Converts 1.21.1 NBT structure files to 1.20.1 format.
-// To enable: set enable_nbt_conversion=true in gradle.properties
-// and update inputDir/outputDir paths to match your mod ID.
-if (rootProject.findProperty('enable_nbt_conversion') == 'true') {
-    sourceSets {
-        main {
-            resources {
-                srcDir 'build/generated/nbt'
-            }
-        }
-    }
-
-    tasks.register('convertNbtStructures', com.castleshift.buildsrc.ConvertNbtStructuresTask) {
-        group = 'build'
-        description = 'Convert NBT structure files from 1.21.1 to 1.20.1 format'
-
-        onlyIf {
-            project.ext.minecraft_version == '1.20.1'
-        }
-
-        // TODO: Update 'castleshift' to your mod ID in both paths below.
-        // 1.21.1 uses 'structure' (singular), 1.20.1 uses 'structures' (plural)
-        inputDir.set(rootProject.file('common/1.21.1/src/main/resources/data/castleshift/structure'))
-        outputDir.set(file('build/generated/nbt/data/castleshift/structures'))
-    }
-
-    processResources.dependsOn convertNbtStructures
-
-    tasks.named('sourcesJar') {
-        dependsOn convertNbtStructures
-    }
-}
-
-// Data File Copy (JSON): 1.21.1 → 1.20.1
-// Copies JSON data files with directory renaming (e.g. loot_table → loot_tables).
-// To enable: set enable_data_copy=true in gradle.properties
-if (rootProject.findProperty('enable_data_copy') == 'true') {
-    sourceSets {
-        main {
-            resources {
-                srcDir 'build/generated/data'
-            }
-        }
-    }
-
-    tasks.register('copyDataFiles', com.castleshift.buildsrc.CopyDataFilesTask) {
-        group = 'build'
-        description = 'Copy JSON data files from 1.21.1 to 1.20.1 with directory renaming'
-
-        onlyIf {
-            project.ext.minecraft_version == '1.20.1'
-        }
-
-        inputDir.set(rootProject.file('common/1.21.1/src/main/resources/data/castleshift'))
-        outputDir.set(file('build/generated/data/data/castleshift'))
-    }
-
-    processResources.dependsOn copyDataFiles
-
-    tasks.named('sourcesJar') {
-        dependsOn copyDataFiles
-    }
-}
+// NBT structure conversion and JSON data-file copy: 1.21.1 -> 1.20.1.
+// To enable: set enable_nbt_conversion=true / enable_data_copy=true in gradle.properties.
+apply from: "${rootDir}/gradle/nbt-conversion.gradle"
 
 // Expand pack_format variable in pack.mcmeta
 processResources {
