@@ -1,9 +1,16 @@
 pluginManagement {
+    includeBuild 'gradle/shared'
+
     repositories {
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://maven.architectury.dev/' }
         maven { url 'https://maven.neoforged.net/releases/' }
         maven { url 'https://maven.minecraftforge.net/' }
+        // Resolves com.github.Querz:NBT, a compile-time dependency of the
+        // gradle/shared submodule (used by its unrelated nbtConversion
+        // feature, which this project doesn't enable, but the whole plugin
+        // module still needs it on its own compile classpath).
+        maven { url 'https://jitpack.io' }
         gradlePluginPortal()
     }
 }

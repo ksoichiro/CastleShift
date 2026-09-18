@@ -76,6 +76,8 @@ cd CastleShift
 ./gradlew buildAll       # Build all versions
 ./gradlew cleanAll       # Clean all versions
 ./gradlew release        # cleanAll + buildAll + collectJars
+./gradlew releaseModrinth    # Upload build/release/*.jar to Modrinth (requires MODRINTH_TOKEN)
+./gradlew releaseCurseForge  # Upload build/release/*.jar to CurseForge (requires CURSEFORGE_TOKEN)
 ```
 
 ## Development Setup
@@ -148,7 +150,7 @@ CastleShift/
 │   ├── 1.21.3/ ... 1.21.11/ # Forge subprojects for other 1.21.x versions
 │   └── 1.20.1/              # Forge subproject for MC 1.20.1 (Architectury Loom)
 ├── props/                   # Version-specific properties
-├── scripts/                 # Build and release scripts
+├── gradle/shared/           # Git submodule providing releaseModrinth/releaseCurseForge tasks
 ├── build.gradle             # Root build configuration (Groovy DSL)
 ├── settings.gradle          # Multi-module settings
 └── gradle.properties        # Version configuration

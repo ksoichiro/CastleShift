@@ -35,6 +35,8 @@ Supported versions:
 ./gradlew forge:runClient -Ptarget_mc_version=1.20.1  # Run Forge client (1.20.1, Loom)
 ./gradlew buildAll                                 # Build all versions
 ./gradlew release                                  # Clean + build all + collect JARs
+./gradlew releaseModrinth                          # Upload build/release/*.jar to Modrinth (requires MODRINTH_TOKEN)
+./gradlew releaseCurseForge                        # Upload build/release/*.jar to CurseForge (requires CURSEFORGE_TOKEN)
 ```
 
 ## Key Files
@@ -103,7 +105,4 @@ instead of `neoforge:runClient -Ptarget_mc_version=1.21.1`.
 ## Scripts
 
 - `gradle/nbt-conversion.gradle` - Converts structure NBT files and copies JSON data files from 1.21.1 to 1.20.1 format, applied from `common/1.20.1/build.gradle`
-- `scripts/release.sh` - Upload a single JAR to Modrinth
-- `scripts/release-all.sh` - Upload all JARs in `build/release/` to Modrinth
-- `scripts/release-curseforge.sh` - Upload a single JAR to CurseForge
-- `scripts/release-curseforge-all.sh` - Upload all JARs in `build/release/` to CurseForge
+- `gradle/shared/` - Git submodule ([minecraft-mod-gradle-scripts](https://github.com/ksoichiro/minecraft-mod-gradle-scripts)), included as a composite build for the `releaseModrinth`/`releaseCurseForge` tasks only (`multiVersion`/`resourceValidation` are disabled in the `mcmod {}` block in root `build.gradle` since this repo has its own equivalents)

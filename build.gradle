@@ -5,6 +5,28 @@ plugins {
     id 'architectury-plugin' version '3.5-SNAPSHOT'
     id 'com.gradleup.shadow' version '8.3.6' apply false
     id 'net.minecraftforge.gradle' version "${forgegradle_version}" apply false
+    id 'com.github.ksoichiro.mcmod'
+}
+
+// releaseModrinth / releaseCurseForge only, from the gradle/shared submodule.
+// multiVersion/resourceValidation stay disabled: this repo already has its
+// own gradle/multi-version-tasks.gradle with the same task names.
+mcmod {
+    multiVersion {
+        enabled = false
+    }
+    resourceValidation {
+        enabled = false
+    }
+    releaseModrinth {
+        enabled = true
+        projectId = 'YD7K9Qmq'
+    }
+    releaseCurseForge {
+        enabled = true
+        projectId = '1474573'
+        environments = ['Client', 'Server']
+    }
 }
 
 // Multi-version support: Load version-specific properties
