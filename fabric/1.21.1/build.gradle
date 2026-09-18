@@ -44,16 +44,6 @@ sourceSets {
             srcDir '../base/src/main/resources'
         }
     }
-    gametest {
-        java {
-            srcDir '../base/src/gametest/java'
-            srcDir 'src/gametest/java'
-        }
-        compileClasspath += sourceSets.main.compileClasspath
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.runtimeClasspath
-        runtimeClasspath += sourceSets.main.output
-    }
 }
 
 loom {
@@ -69,13 +59,6 @@ loom {
         server {
             server()
             runDir("run")
-        }
-        gameTestServer {
-            server()
-            runDir("run")
-            source(sourceSets.gametest)
-            vmArg("-Dfabric-api.gametest")
-            vmArg("-Dfabric-api.gametest.report-file=${project.buildDir}/gametest-report.xml")
         }
     }
 }
