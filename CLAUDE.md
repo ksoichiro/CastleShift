@@ -57,6 +57,23 @@ Supported versions:
 - Platform-specific code goes in `fabric/*/`, `neoforge/*/`, or `forge/*/`
 - Version-specific common code goes in `common/{version}/`
 
+### Known issue: `neoforge:runClient -Ptarget_mc_version=1.21.1` may fail to launch
+
+`neoforge:runClient` for 1.21.1 can crash at startup with
+`InvalidModFileException: Illegal version number specified version (main)`
+(NeoForge fails to associate `neoforge.mods.toml` with the mod, then falls
+back to the `build/resources/main` directory's own basename as a pseudo
+version). Extensively investigated (2026-09-18): reproduces even from a
+fully clean environment (wiped `.gradle`, wiped and redownloaded the
+`fabric-loom` 1.21.1/NeoForge caches), on commits that predate any
+buildSrc/NBT-conversion work, so it is not caused by this project's build
+scripts. Root cause not found; no matching upstream architectury-loom issue
+located either. Does not affect `build`/`buildAll`/`release` (verified
+repeatedly) — only the interactive dev-run convenience task. `forge:runClient`
+and `neoforge:runClient -Ptarget_mc_version=1.21.2` (and later) are unaffected.
+Workaround: test 1.21.1 behavior via `forge:runClient` or a 1.21.2+ target
+instead of `neoforge:runClient -Ptarget_mc_version=1.21.1`.
+
 ### Version-specific API differences (1.21.1 vs 1.20.1)
 
 - SavedData: 1.21 uses `HolderLookup.Provider` parameter, 1.20.1 does not
