@@ -6,13 +6,12 @@ def forgeMajor = project.ext.forge_major_version as int
 // Other versions copy from 1.21.1 at build time (same as common module's copySharedData).
 def commonResDir = "../../common/${project.ext.minecraft_version}/src/main/resources"
 def dataSourceDir = rootProject.file('common/1.21.1/src/main/resources/data')
-def hasOwnData = file("${commonResDir}/data").exists()
-
-if (!hasOwnData) {
-    tasks.register('copySharedData', Copy) {
-        from dataSourceDir
-        into layout.buildDirectory.dir('generated/data/data')
-    }
+// Always copy: resources srcDirs list commonResDir before the generated dir and
+// processResources uses DuplicatesStrategy.EXCLUDE, so any file this version
+// defines locally still wins over the shared 1.21.1 copy.
+tasks.register('copySharedData', Copy) {
+    from dataSourceDir
+    into layout.buildDirectory.dir('generated/data/data')
 }
 
 minecraft {
@@ -55,9 +54,7 @@ sourceSets {
             // Common version-specific resources
             srcDir commonResDir
             // Generated data files (copied from 1.21.1 for other versions)
-            if (!hasOwnData) {
-                srcDir layout.buildDirectory.dir('generated/data')
-            }
+            srcDir layout.buildDirectory.dir('generated/data')
         }
     }
 }
@@ -80,9 +77,7 @@ sourceSets.each {
 }
 
 tasks.named("processResources", ProcessResources).configure {
-    if (!hasOwnData) {
-        dependsOn 'copySharedData'
-    }
+    dependsOn 'copySharedData'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.property "version", project.version
 
