@@ -2,7 +2,7 @@
 // ever loaded when ModMenu is actually installed (it is reached through ModMenu's own entrypoint).
 package com.castleshift.fabric.modmenu;
 
-import com.castleshift.config.client.ClientConfigKeybind;
+import com.castleshift.config.ConfigLoader;
 import com.castleshift.config.client.ConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -14,6 +14,6 @@ public class CastleShiftModMenuIntegration implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> new ConfigScreen(
                 parent,
-                FabricLoader.getInstance().getConfigDir().resolve(ClientConfigKeybind.CONFIG_FILE_NAME));
+                FabricLoader.getInstance().getConfigDir().resolve(ConfigLoader.CONFIG_FILE_NAME));
     }
 }

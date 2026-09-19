@@ -1,6 +1,7 @@
 // Temporary 1.21.1-only override of the shared fabric/base entrypoints (see CastleShiftFabric); fold back into base/ once other versions gain com.castleshift.world.placement.
 package com.castleshift.fabric;
 
+import com.castleshift.config.ConfigLoader;
 import com.castleshift.config.client.ClientConfigKeybind;
 import java.nio.file.Path;
 import net.fabricmc.api.ClientModInitializer;
@@ -12,7 +13,7 @@ public class CastleShiftFabricClient implements ClientModInitializer {
 
     /** Shared with the (optional) ModMenu integration so both open the same file. */
     public static Path configFile() {
-        return FabricLoader.getInstance().getConfigDir().resolve(ClientConfigKeybind.CONFIG_FILE_NAME);
+        return FabricLoader.getInstance().getConfigDir().resolve(ConfigLoader.CONFIG_FILE_NAME);
     }
 
     @Override

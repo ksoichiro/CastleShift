@@ -2,6 +2,7 @@
 // live under common/1.21.1 only. Fold back into forge/base once the other versions gain them.
 package com.castleshift.forge;
 
+import com.castleshift.config.ConfigLoader;
 import com.castleshift.config.client.ClientConfigKeybind;
 import com.castleshift.config.client.ConfigScreen;
 import java.nio.file.Path;
@@ -51,6 +52,6 @@ public final class CastleShiftForgeClient {
     }
 
     private static Path configFile() {
-        return FMLPaths.CONFIGDIR.get().resolve(ClientConfigKeybind.CONFIG_FILE_NAME);
+        return FMLPaths.CONFIGDIR.get().resolve(ConfigLoader.CONFIG_FILE_NAME);
     }
 }

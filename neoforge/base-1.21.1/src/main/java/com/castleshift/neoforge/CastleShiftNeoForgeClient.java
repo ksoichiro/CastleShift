@@ -3,6 +3,7 @@
 package com.castleshift.neoforge;
 
 import com.castleshift.CastleShift;
+import com.castleshift.config.ConfigLoader;
 import com.castleshift.config.client.ClientConfigKeybind;
 import com.castleshift.config.client.ConfigScreen;
 import java.nio.file.Path;
@@ -45,6 +46,6 @@ public class CastleShiftNeoForgeClient {
     }
 
     private static Path configFile() {
-        return FMLPaths.CONFIGDIR.get().resolve(ClientConfigKeybind.CONFIG_FILE_NAME);
+        return FMLPaths.CONFIGDIR.get().resolve(ConfigLoader.CONFIG_FILE_NAME);
     }
 }
