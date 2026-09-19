@@ -3,6 +3,7 @@
 package com.castleshift.forge;
 
 import com.castleshift.CastleShift;
+import com.castleshift.config.ConfigLoader;
 import com.castleshift.world.placement.ModPlacements;
 import com.castleshift.world.processor.ModProcessors;
 import net.minecraft.core.registries.Registries;
@@ -12,6 +13,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.DeferredRegister;
 
 @Mod(CastleShift.MOD_ID)
@@ -36,6 +38,9 @@ public class CastleShiftForge {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         PROCESSOR_TYPES.register(modEventBus);
         PLACEMENT_TYPES.register(modEventBus);
+        // Common init runs on both client and dedicated server, and finishes long before worldgen,
+        // so a hand-edited config file is respected even if the config screen is never opened.
+        ConfigLoader.loadAndApply(FMLPaths.CONFIGDIR.get().resolve(ConfigLoader.CONFIG_FILE_NAME));
         CastleShift.init();
 
         // Keep client-only classes (Minecraft/Screen/ConfigScreenHandler) off the dedicated server.

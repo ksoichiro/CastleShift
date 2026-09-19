@@ -3,6 +3,7 @@
 package com.castleshift.neoforge;
 
 import com.castleshift.CastleShift;
+import com.castleshift.config.ConfigLoader;
 import com.castleshift.world.placement.ModPlacements;
 import com.castleshift.world.processor.ModProcessors;
 import net.minecraft.core.registries.Registries;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 @Mod(CastleShift.MOD_ID)
@@ -33,6 +35,9 @@ public class CastleShiftNeoForge {
     public CastleShiftNeoForge(IEventBus modEventBus) {
         PROCESSOR_TYPES.register(modEventBus);
         PLACEMENT_TYPES.register(modEventBus);
+        // Common init runs on both client and dedicated server, and finishes long before worldgen,
+        // so a hand-edited config file is respected even if the config screen is never opened.
+        ConfigLoader.loadAndApply(FMLPaths.CONFIGDIR.get().resolve(ConfigLoader.CONFIG_FILE_NAME));
         CastleShift.init();
     }
 }

@@ -11,7 +11,27 @@ import java.nio.file.StandardCopyOption;
 
 public final class ConfigLoader {
 
+    /** Name of the config file, relative to each loader's config directory. */
+    public static final String CONFIG_FILE_NAME = "castleshift.toml";
+
     private ConfigLoader() {}
+
+    /**
+     * Loads {@code configFile} and makes it authoritative for world generation.
+     *
+     * <p>Called from every loader's common mod-init path so a hand-edited config file takes effect
+     * on a dedicated server, and on any client session where the config screen is never opened.
+     * A broken file must not prevent the game from starting, so failures fall back to the defaults
+     * already held by {@link CastleShiftConfig}.
+     */
+    public static void loadAndApply(Path configFile) {
+        try {
+            CastleShiftConfig.set(load(configFile));
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "[castleshift] failed to load " + configFile + "; keeping defaults: " + e);
+        }
+    }
 
     public static CastleShiftConfig load(Path configFile) {
         if (!Files.exists(configFile)) {
