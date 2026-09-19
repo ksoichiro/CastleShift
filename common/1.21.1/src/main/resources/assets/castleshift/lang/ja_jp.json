@@ -1,0 +1,11 @@
+{
+  "config.castleshift.title": "Castle Shift 設定",
+  "config.castleshift.option.enabled": "城を生成する",
+  "config.castleshift.option.preset": "生成頻度",
+  "config.castleshift.preset.sparse": "少なめ",
+  "config.castleshift.preset.default": "標準",
+  "config.castleshift.preset.frequent": "多め",
+  "config.castleshift.option.custom_spacing": "間隔(spacing)を直接指定",
+  "config.castleshift.option.custom_separation": "分離距離(separation)を直接指定",
+  "config.castleshift.reset": "リセット"
+}

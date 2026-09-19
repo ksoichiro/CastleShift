@@ -1,0 +1,11 @@
+{
+  "config.castleshift.title": "Castle Shift Configuration",
+  "config.castleshift.option.enabled": "Generate Castles",
+  "config.castleshift.option.preset": "Generation Frequency",
+  "config.castleshift.preset.sparse": "Sparse",
+  "config.castleshift.preset.default": "Default",
+  "config.castleshift.preset.frequent": "Frequent",
+  "config.castleshift.option.custom_spacing": "Custom Spacing",
+  "config.castleshift.option.custom_separation": "Custom Separation",
+  "config.castleshift.reset": "Reset"
+}
