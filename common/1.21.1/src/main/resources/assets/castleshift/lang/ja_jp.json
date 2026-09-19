@@ -8,5 +8,7 @@
   "config.castleshift.option.custom_spacing": "間隔(spacing)を直接指定",
   "config.castleshift.option.custom_separation": "分離距離(separation)を直接指定",
   "config.castleshift.reset": "リセット",
-  "config.castleshift.warning.not_authoritative": "この設定はプレイヤー側の表示にのみ反映され、接続中のサーバー本体の設定は変更されません。"
+  "config.castleshift.warning.not_authoritative": "この設定はプレイヤー側の表示にのみ反映され、接続中のサーバー本体の設定は変更されません。",
+  "key.categories.castleshift": "Castle Shift",
+  "key.castleshift.open_config": "Castle Shift設定を開く"
 }

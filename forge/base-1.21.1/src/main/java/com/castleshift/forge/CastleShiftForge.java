@@ -8,8 +8,10 @@ import com.castleshift.world.processor.ModProcessors;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.DeferredRegister;
 
 @Mod(CastleShift.MOD_ID)
@@ -31,8 +33,14 @@ public class CastleShiftForge {
     }
 
     public CastleShiftForge() {
-        PROCESSOR_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        PLACEMENT_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        PROCESSOR_TYPES.register(modEventBus);
+        PLACEMENT_TYPES.register(modEventBus);
         CastleShift.init();
+
+        // Keep client-only classes (Minecraft/Screen/ConfigScreenHandler) off the dedicated server.
+        if (FMLEnvironment.dist.isClient()) {
+            CastleShiftForgeClient.init(modEventBus);
+        }
     }
 }

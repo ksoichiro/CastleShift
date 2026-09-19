@@ -8,5 +8,7 @@
   "config.castleshift.option.custom_spacing": "Custom Spacing",
   "config.castleshift.option.custom_separation": "Custom Separation",
   "config.castleshift.reset": "Reset",
-  "config.castleshift.warning.not_authoritative": "These settings only affect your local view - they do not change the settings on the server you're connected to."
+  "config.castleshift.warning.not_authoritative": "These settings only affect your local view - they do not change the settings on the server you're connected to.",
+  "key.categories.castleshift": "Castle Shift",
+  "key.castleshift.open_config": "Open Castle Shift Config"
 }
