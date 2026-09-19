@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.castleshift.config.CastleShiftConfig;
 import com.castleshift.config.ConfigDefaults;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.Bootstrap;
 import org.junit.jupiter.api.AfterEach;
@@ -81,6 +83,25 @@ class ConfigurableSpreadStructurePlacementTest {
         ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
 
         assertEquals(77, placement.spacing());
+    }
+
+    @Test
+    void codecParsesAStructureSetPlacementBlockWithSaltOnly() {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "castleshift:configurable_spread");
+        json.addProperty("salt", SALT);
+
+        ConfigurableSpreadStructurePlacement parsed = ConfigurableSpreadStructurePlacement.CODEC
+                .codec()
+                .parse(JsonOps.INSTANCE, json)
+                .getOrThrow();
+
+        // The salt is stored on the vanilla base class (protected accessor), so assert it
+        // indirectly: the same salt must yield the same spread as a directly constructed instance.
+        assertEquals(
+                PlacementTestInvoker.create(SALT).getPotentialStructureChunk(0L, 0, 0),
+                parsed.getPotentialStructureChunk(0L, 0, 0));
+        assertEquals(ModPlacements.CONFIGURABLE_SPREAD, parsed.type());
     }
 
     @Test
