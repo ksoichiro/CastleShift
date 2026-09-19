@@ -1,6 +1,7 @@
 package com.castleshift.world.placement;
 
 import com.castleshift.config.CastleShiftConfig;
+import com.castleshift.config.ConfigDefaults;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
@@ -9,16 +10,25 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 
 /**
  * Behaves like {@code minecraft:random_spread}, except that spacing/separation and the on/off
  * switch come from the mod config at chunk-generation time rather than from the structure set JSON.
  * Values are deliberately read live on every call so config changes apply without a restart.
+ *
+ * <p>This extends {@link RandomSpreadStructurePlacement} rather than {@code StructurePlacement}
+ * on purpose: {@code ChunkGenerator#findNearestMapStructure} (the code behind {@code /locate
+ * structure} and explorer maps) collects candidates with {@code instanceof
+ * RandomSpreadStructurePlacement}, so a direct {@code StructurePlacement} subclass is invisible to
+ * it even though world generation works. Everything that path then does with the placement is a
+ * virtual call ({@code spacing()} and {@code getPotentialStructureChunk(...)}), so the overrides
+ * below keep the values config-driven. The spacing/separation handed to the super constructor are
+ * never read: every vanilla method that reads those private fields is overridden here.
  */
-public class ConfigurableSpreadStructurePlacement extends StructurePlacement {
+public class ConfigurableSpreadStructurePlacement extends RandomSpreadStructurePlacement {
 
     public static final MapCodec<ConfigurableSpreadStructurePlacement> CODEC = RecordCodecBuilder.mapCodec(
             instance -> placementCodec(instance).apply(instance, ConfigurableSpreadStructurePlacement::new));
@@ -29,7 +39,15 @@ public class ConfigurableSpreadStructurePlacement extends StructurePlacement {
             float frequency,
             int salt,
             Optional<ExclusionZone> exclusionZone) {
-        super(locateOffset, frequencyReductionMethod, frequency, salt, exclusionZone);
+        super(
+                locateOffset,
+                frequencyReductionMethod,
+                frequency,
+                salt,
+                exclusionZone,
+                ConfigDefaults.DEFAULT_SPACING,
+                ConfigDefaults.DEFAULT_SEPARATION,
+                RandomSpreadType.LINEAR);
     }
 
     public static ConfigurableSpreadStructurePlacement of(int salt) {
@@ -37,10 +55,12 @@ public class ConfigurableSpreadStructurePlacement extends StructurePlacement {
                 Vec3i.ZERO, FrequencyReductionMethod.DEFAULT, 1.0F, salt, Optional.empty());
     }
 
+    @Override
     public int spacing() {
         return CastleShiftConfig.get().generation().effectiveSpacing();
     }
 
+    @Override
     public int separation() {
         return CastleShiftConfig.get().generation().effectiveSeparation();
     }
@@ -58,7 +78,12 @@ public class ConfigurableSpreadStructurePlacement extends StructurePlacement {
         return potential.x == chunkX && potential.z == chunkZ;
     }
 
-    /** Mirrors {@code RandomSpreadStructurePlacement#getPotentialStructureChunk} (LINEAR spread). */
+    /**
+     * Same algorithm as {@code RandomSpreadStructurePlacement#getPotentialStructureChunk} (LINEAR
+     * spread), but reading spacing/separation from the config instead of the super class's private
+     * final fields, which are fixed when the structure set JSON is parsed.
+     */
+    @Override
     public ChunkPos getPotentialStructureChunk(long seed, int chunkX, int chunkZ) {
         int spacing = spacing();
         // The base class would divide by zero / draw from an empty range on degenerate values;

@@ -11,6 +11,8 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -83,6 +85,41 @@ class ConfigurableSpreadStructurePlacementTest {
         ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
 
         assertEquals(77, placement.spacing());
+    }
+
+    /**
+     * ChunkGenerator#findNearestMapStructure (the /locate structure and explorer map path) only
+     * considers placements that pass `instanceof RandomSpreadStructurePlacement`. Without this,
+     * castles generate but can never be located.
+     */
+    @Test
+    void isRecognizedByVanillaAsARandomSpreadPlacement() {
+        ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
+
+        assertTrue(
+                placement instanceof RandomSpreadStructurePlacement,
+                "vanilla /locate only sees RandomSpreadStructurePlacement instances");
+    }
+
+    /**
+     * The values vanilla's locate path reads are the overridden accessors, not the super class's
+     * private final fields, so they must track the config even after construction.
+     */
+    @Test
+    void vanillaAccessorsReturnLiveConfigValuesNotTheConstructorArguments() {
+        // Typed as the vanilla class on purpose: this is how ChunkGenerator holds the reference.
+        RandomSpreadStructurePlacement asVanilla = PlacementTestInvoker.create(SALT);
+
+        CastleShiftConfig.set(new CastleShiftConfig(
+                new CastleShiftConfig.Generation(true, CastleShiftConfig.Preset.DEFAULT, null, null)));
+        ChunkPos underDefault = asVanilla.getPotentialStructureChunk(0L, 1000, 1000);
+
+        CastleShiftConfig.set(new CastleShiftConfig(
+                new CastleShiftConfig.Generation(true, CastleShiftConfig.Preset.SPARSE, null, null)));
+
+        assertEquals(ConfigDefaults.SPARSE_SPACING, asVanilla.spacing());
+        assertEquals(ConfigDefaults.SPARSE_SEPARATION, asVanilla.separation());
+        assertNotEquals(underDefault, asVanilla.getPotentialStructureChunk(0L, 1000, 1000));
     }
 
     @Test
