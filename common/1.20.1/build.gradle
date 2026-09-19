@@ -40,6 +40,11 @@ apply from: "${rootDir}/gradle/nbt-conversion.gradle"
 
 // Expand pack_format variable in pack.mcmeta
 processResources {
+    // A version-local file under src/main/resources intentionally overrides the
+    // 1.21.1 copy of the same path: src/main/resources is the first resources
+    // srcDir, so EXCLUDE keeps it and drops the generated duplicate.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     inputs.property 'pack_format', project.ext.pack_format
 
     filesMatching('pack.mcmeta') {
