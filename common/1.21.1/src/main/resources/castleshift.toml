@@ -1,0 +1,12 @@
+# Castle Shift generation settings.
+schema_version = 1
+
+[generation]
+    # Whether castles generate at all.
+    enabled = true
+    # One of: SPARSE, DEFAULT, FREQUENT.
+    preset = "DEFAULT"
+    # Overrides the preset's spacing/separation when set. Remove the line
+    # (or leave commented) to use the preset's value.
+    #custom_spacing = 32
+    #custom_separation = 8

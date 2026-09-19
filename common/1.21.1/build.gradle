@@ -32,6 +32,8 @@ dependencies {
     // night-config: provided by NeoForge/Forge at runtime; Fabric bundles it via `include`.
     compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
     compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
+    testRuntimeOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    testRuntimeOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
 }
 
 test {
