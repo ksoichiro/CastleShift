@@ -40,7 +40,9 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir '../base/src/main/java'
+            // 1.21.1 uses its own entrypoint: it registers ModPlacements, which
+            // only exists under common/1.21.1 (see forge/base-56 for the same pattern).
+            srcDir '../base-1.21.1/src/main/java'
             srcDir 'src/main/java'
         }
         resources {
