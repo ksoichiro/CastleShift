@@ -59,18 +59,8 @@ public final class ConfigLoader {
             Integer customSpacing = readNullableInt(fileConfig, "generation.custom_spacing");
             Integer customSeparation = readNullableInt(fileConfig, "generation.custom_separation");
 
-            if (customSpacing != null) {
-                customSpacing = ConfigRanges.clampSpacing(customSpacing);
-            }
-            if (customSeparation != null) {
-                int spacingForClamp = customSpacing != null ? customSpacing : new CastleShiftConfig.Generation(
-                                enabled, preset, null, null)
-                        .effectiveSpacing();
-                customSeparation = ConfigRanges.clampSeparation(spacingForClamp, customSeparation);
-            }
-
-            return new CastleShiftConfig(
-                    new CastleShiftConfig.Generation(enabled, preset, customSpacing, customSeparation));
+            return new CastleShiftConfig(ConfigRanges.resolveEffective(
+                    new CastleShiftConfig.Generation(enabled, preset, customSpacing, customSeparation)));
         }
     }
 
