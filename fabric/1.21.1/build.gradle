@@ -31,6 +31,10 @@ dependencies {
 
     common(project(path: commonModule, configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: commonModule, configuration: 'transformProductionFabric')
+
+    // night-config: Fabric does not ship it, so bundle it into the mod jar.
+    include "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    include "com.electronwill.night-config:toml:${rootProject.night_config_version}"
 }
 
 sourceSets {

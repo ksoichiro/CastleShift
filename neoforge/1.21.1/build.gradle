@@ -57,6 +57,10 @@ dependencies {
 
     common(project(path: commonModule, configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: commonModule, configuration: "transformProductionNeoForge")) { transitive false }
+
+    // night-config: provided by NeoForge at runtime.
+    compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
 }
 
 tasks.named("processResources", ProcessResources).configure {
