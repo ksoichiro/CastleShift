@@ -71,6 +71,8 @@ Before changing the default, publish example datapacks for sparse, default, and 
 
 The permanent solution is a bundled config file (TOML) plus an in-game settings screen, letting a player or server operator enable/disable castle generation and choose a spacing/separation preset (sparse/default/frequent) with optional numeric overrides that take priority over the preset when set. This follows the vanilla-widget config screen pattern already proven in the sibling MinersMarket project, with no Cloth Config or mandatory ModMenu dependency. A config change takes effect for newly generated chunks without a world restart; already-generated chunks are unaffected, the same as changing spacing in a datapack today.
 
+As shipped (Minecraft 1.21.1 only for now), the config file is read once at mod init. A dedicated server therefore needs a restart to pick up an edit made while it is running; live reload, and porting the feature to the other supported versions, are still open.
+
 ## Delivery Order
 
 1. Split loot into purpose-based tables and add the first themed room templates.

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Castle generation config: a `castleshift.toml` config file and an in-game settings screen to turn castle generation on or off and choose its frequency (Sparse / Default / Frequent presets, with optional spacing and separation overrides). The screen opens from the mod list (ModMenu on Fabric, the loader's own config button on NeoForge and Forge) or from an unbound keybind. Currently applies to Minecraft 1.21.1 only; all other supported versions keep their previous fixed generation frequency until the feature is ported.
+
 ## [0.3.0] - 2026-09-17
 
 ### Added

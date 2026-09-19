@@ -27,6 +27,17 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
  * virtual call ({@code spacing()} and {@code getPotentialStructureChunk(...)}), so the overrides
  * below keep the values config-driven. The spacing/separation handed to the super constructor are
  * never read: every vanilla method that reads those private fields is overridden here.
+ *
+ * <p>{@link #getPotentialStructureChunk} deliberately has <em>no</em> {@code enabled()} guard: that
+ * method only answers "which chunk of this region would hold a castle", and the locate path still
+ * goes through {@code StructureCheck#checkStart} → {@code StructurePlacement#isStructureChunk} →
+ * {@link #isPlacementChunk}, which does check it. Verified empirically on a headless 1.21.1 Fabric
+ * dev server (fresh world, seed 12345) with {@code enabled = false} in {@code castleshift.toml}:
+ * {@code /locate structure castleshift:castle} exhaustively searched and answered "Could not find
+ * a structure of type castleshift:castle nearby", while {@code /locate structure
+ * minecraft:village_plains} on the same server answered normally. The same command with
+ * {@code enabled = true} answers immediately ("at [736, ~, -144]"). So {@code /locate} never points
+ * at a castle that would not generate, and no extra guard is needed here.
  */
 public class ConfigurableSpreadStructurePlacement extends RandomSpreadStructurePlacement {
 

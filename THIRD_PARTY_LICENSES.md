@@ -47,6 +47,17 @@ This document lists all third-party dependencies used in Castle Shift and their 
 - **License URL**: https://github.com/MinecraftForge/MinecraftForge/blob/1.20.x/LICENSE.txt
 - **Note**: Projects using Forge's APIs are not required to be licensed under LGPL-2.1
 
+### Libraries
+
+#### NightConfig (Fabric, 1.21.1)
+- **Project**: NightConfig (core, toml)
+- **Version**: 3.7.4
+- **Developer**: TheElectronWill
+- **License**: LGPL-3.0-or-later
+- **URL**: https://github.com/TheElectronWill/night-config
+- **License URL**: https://github.com/TheElectronWill/night-config/blob/master/LICENSE
+- **Note**: Bundled into the Fabric 1.21.1 jar via jar-in-jar (used to read and write `castleshift.toml`). NeoForge and Forge already ship it, so those jars do not bundle it.
+
 ## Development Dependencies
 
 ### Build Tools
@@ -84,6 +95,11 @@ Copyleft license that requires derivative works to be licensed under LGPL-2.1. H
 
 **Used by**: NeoForge, Forge
 
+### LGPL-3.0-or-later
+Copyleft license that requires derivative works to be licensed under LGPL-3.0. Linking to libraries licensed under LGPL-3.0 does not require the linking code to be licensed under LGPL-3.0.
+
+**Used by**: NightConfig
+
 ### MIT License
 Very permissive license allowing nearly unrestricted use, modification, and distribution. Only requires preservation of copyright and license notices.
 
@@ -94,12 +110,14 @@ Very permissive license allowing nearly unrestricted use, modification, and dist
 - All dependencies are used in compliance with their respective licenses
 - Runtime dependencies (mod loaders, Fabric API) are not bundled with Castle Shift; users must install them separately
 - NeoForge's and Forge's LGPL-2.1 license does not affect Castle Shift's license due to linking exception
+- NightConfig is the one bundled dependency (Fabric 1.21.1 jar only), and its LGPL-3.0 license matches Castle Shift's own LGPL-3.0-only license
 
 ## License Compliance
 
 Castle Shift is licensed under LGPL-3.0-only. All dependencies are compatible with this license:
 - **Permissive licenses** (Apache 2.0, MIT): Fully compatible
 - **LGPL licenses** (LGPL-2.1): Compatible due to dynamic linking (no license propagation)
+- **LGPL-3.0** (NightConfig): Same license family as Castle Shift's own, and bundled unmodified
 
 For questions about licensing, please contact the project maintainer.
 
