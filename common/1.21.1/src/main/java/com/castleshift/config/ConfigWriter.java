@@ -11,7 +11,16 @@ public final class ConfigWriter {
     public static void save(Path configFile, CastleShiftConfig config) {
         try (CommentedFileConfig fileConfig =
                 CommentedFileConfig.builder(configFile, TomlFormat.instance()).sync().build()) {
-            fileConfig.load();
+            try {
+                fileConfig.load();
+            } catch (RuntimeException e) {
+                // The existing file is read only to preserve keys this mod does not own. If it is
+                // unparseable (hand-edited), saving from the config screen must still work, so
+                // start from an empty config and write the full set of values below.
+                System.err.println("[castleshift] could not parse " + configFile
+                        + " before saving; rewriting it from scratch: " + e);
+                fileConfig.clear();
+            }
 
             CastleShiftConfig.Generation gen = config.generation();
             fileConfig.set("schema_version", ConfigDefaults.CURRENT_SCHEMA_VERSION);

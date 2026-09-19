@@ -29,15 +29,40 @@ public class ConfigScreen extends Screen {
     private boolean fieldsInvalid;
     private boolean showNonAuthoritativeWarning;
 
+    /** Vanilla's error red (same tone as {@code ChatFormatting.RED}'s lighter UI variant). */
+    private static final int INVALID_TEXT_COLOR = 0xFFFF5555;
+
+    /** {@code EditBox}'s default text color. */
+    private static final int VALID_TEXT_COLOR = 0xFFFFFFFF;
+
     public ConfigScreen(Screen parent, Path configFile) {
         super(Component.translatable("config.castleshift.title"));
         this.parent = parent;
         this.configFile = configFile;
-        CastleShiftConfig.Generation gen = ConfigLoader.load(configFile).generation();
+        CastleShiftConfig.Generation gen = loadOrActive(configFile);
         this.enabled = gen.enabled();
         this.preset = gen.preset();
         this.initialCustomSpacing = gen.customSpacing();
         this.initialCustomSeparation = gen.customSeparation();
+    }
+
+    /**
+     * Reads the config file, falling back to the currently active in-memory config if it cannot be
+     * parsed.
+     *
+     * <p>This screen is the only UI that can repair a broken {@code castleshift.toml}, so it must
+     * open rather than throw out of its constructor (which would crash the game via
+     * {@code Minecraft#setScreen}). {@link CastleShiftConfig#get()} is always valid: mod init
+     * already falls back to the defaults when the file fails to load.
+     */
+    private static CastleShiftConfig.Generation loadOrActive(Path configFile) {
+        try {
+            return ConfigLoader.load(configFile).generation();
+        } catch (RuntimeException e) {
+            System.err.println("[castleshift] failed to load " + configFile
+                    + " for the config screen; showing the active config instead: " + e);
+            return CastleShiftConfig.get().generation();
+        }
     }
 
     @Override
@@ -63,11 +88,18 @@ public class ConfigScreen extends Screen {
                 .withValues(CastleShiftConfig.Preset.values())
                 .withInitialValue(this.preset)
                 .create(centerX - 150, y, 300, 20, Component.translatable("config.castleshift.option.preset"),
-                        (button, value) -> this.preset = value));
+                        (button, value) -> {
+                            this.preset = value;
+                            // The preset supplies whichever of spacing/separation is not overridden,
+                            // so the cross-field check has to run again when it changes.
+                            this.validate();
+                        }));
 
         y += 24;
         this.customSpacingBox = new EditBox(this.font, centerX - 150, y, 145, 20,
                 Component.translatable("config.castleshift.option.custom_spacing"));
+        // The constructor Component is narration-only; the hint is what the player actually sees.
+        this.customSpacingBox.setHint(Component.translatable("config.castleshift.option.custom_spacing"));
         this.customSpacingBox.setResponder(text -> this.validate());
         if (this.initialCustomSpacing != null) {
             this.customSpacingBox.setValue(String.valueOf(this.initialCustomSpacing));
@@ -76,6 +108,7 @@ public class ConfigScreen extends Screen {
 
         this.customSeparationBox = new EditBox(this.font, centerX + 5, y, 145, 20,
                 Component.translatable("config.castleshift.option.custom_separation"));
+        this.customSeparationBox.setHint(Component.translatable("config.castleshift.option.custom_separation"));
         this.customSeparationBox.setResponder(text -> this.validate());
         if (this.initialCustomSeparation != null) {
             this.customSeparationBox.setValue(String.valueOf(this.initialCustomSeparation));
@@ -110,21 +143,41 @@ public class ConfigScreen extends Screen {
     }
 
     private void validate() {
-        this.fieldsInvalid = false;
-        Integer spacing = parseNullableInt(this.customSpacingBox.getValue());
-        Integer separation = parseNullableInt(this.customSeparationBox.getValue());
-        if (spacing != null && (spacing < ConfigRanges.MIN_SPACING || spacing > ConfigRanges.MAX_SPACING)) {
-            this.fieldsInvalid = true;
+        String spacingText = this.customSpacingBox.getValue();
+        String separationText = this.customSeparationBox.getValue();
+        Integer spacing = parseNullableInt(spacingText);
+        Integer separation = parseNullableInt(separationText);
+
+        // Blank means "no override" and is valid; non-blank text that does not parse is a typo and
+        // must be reported instead of being silently dropped as if the box were empty.
+        boolean spacingInvalid = isUnparseable(spacingText)
+                || (spacing != null && (spacing < ConfigRanges.MIN_SPACING || spacing > ConfigRanges.MAX_SPACING));
+        boolean separationInvalid = isUnparseable(separationText)
+                || (separation != null
+                        && (separation < ConfigRanges.MIN_SEPARATION || separation > ConfigRanges.MAX_SEPARATION));
+
+        if (!spacingInvalid && !separationInvalid) {
+            // Cross-field check against the same invariant ConfigRanges enforces on the read path,
+            // including the one-sided case where the other value comes from the preset.
+            CastleShiftConfig.Generation candidate =
+                    new CastleShiftConfig.Generation(this.enabled, this.preset, spacing, separation);
+            if (candidate.effectiveSeparation() >= candidate.effectiveSpacing()) {
+                spacingInvalid = spacing != null;
+                separationInvalid = separation != null;
+            }
         }
-        if (separation != null && (separation < ConfigRanges.MIN_SEPARATION || separation > ConfigRanges.MAX_SEPARATION)) {
-            this.fieldsInvalid = true;
-        }
-        if (spacing != null && separation != null && separation >= spacing) {
-            this.fieldsInvalid = true;
-        }
+
+        this.customSpacingBox.setTextColor(spacingInvalid ? INVALID_TEXT_COLOR : VALID_TEXT_COLOR);
+        this.customSeparationBox.setTextColor(separationInvalid ? INVALID_TEXT_COLOR : VALID_TEXT_COLOR);
+
+        this.fieldsInvalid = spacingInvalid || separationInvalid;
         if (this.doneButton != null) {
             this.doneButton.active = !this.fieldsInvalid;
         }
+    }
+
+    private static boolean isUnparseable(String text) {
+        return text != null && !text.isBlank() && parseNullableInt(text) == null;
     }
 
     private static Integer parseNullableInt(String text) {
@@ -150,10 +203,19 @@ public class ConfigScreen extends Screen {
     private void saveAndClose() {
         Integer customSpacing = parseNullableInt(this.customSpacingBox.getValue());
         Integer customSeparation = parseNullableInt(this.customSeparationBox.getValue());
-        CastleShiftConfig updated = new CastleShiftConfig(
-                new CastleShiftConfig.Generation(this.enabled, this.preset, customSpacing, customSeparation));
+        // Go through the same clamping the loader applies, so what is written here is exactly what
+        // would be read back after a restart.
+        CastleShiftConfig updated = new CastleShiftConfig(ConfigRanges.resolveEffective(
+                new CastleShiftConfig.Generation(this.enabled, this.preset, customSpacing, customSeparation)));
         ConfigWriter.save(this.configFile, updated);
         CastleShiftConfig.set(updated);
+        this.minecraft.setScreen(this.parent);
+    }
+
+    @Override
+    public void onClose() {
+        // Match Cancel: Escape returns to whoever opened this screen (the mods list, or the game
+        // when opened via the keybind), instead of Screen's default setScreen(null).
         this.minecraft.setScreen(this.parent);
     }
 
