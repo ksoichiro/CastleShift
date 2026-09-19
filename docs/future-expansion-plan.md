@@ -67,7 +67,9 @@ Optional built-in integrations can be considered later for widely used loot syst
 
 Some players may find castles too common, especially in compatible overworld biomes. The default placement currently uses 32-chunk spacing, subject to biome eligibility and the village exclusion zone.
 
-Before changing the default, publish example datapacks for sparse, default, and frequent generation. This gives players an immediate answer without forcing one world-generation preference on every pack. A future in-game configuration option is useful only if it can be maintained consistently across all supported loaders and versions.
+Before changing the default, publish example datapacks for sparse, default, and frequent generation. This gives players an immediate answer without forcing one world-generation preference on every pack.
+
+The permanent solution is a bundled config file (TOML) plus an in-game settings screen, letting a player or server operator enable/disable castle generation and choose a spacing/separation preset (sparse/default/frequent) with optional numeric overrides that take priority over the preset when set. This follows the vanilla-widget config screen pattern already proven in the sibling MinersMarket project, with no Cloth Config or mandatory ModMenu dependency. A config change takes effect for newly generated chunks without a world restart; already-generated chunks are unaffected, the same as changing spacing in a datapack today.
 
 ## Delivery Order
 
