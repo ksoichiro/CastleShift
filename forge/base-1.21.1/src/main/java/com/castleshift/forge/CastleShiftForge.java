@@ -1,3 +1,5 @@
+// Temporary 1.21.1-only override of the shared forge/base entrypoint: com.castleshift.world.placement (ModPlacements) exists only under common/1.21.1.
+// Fold this directory back into forge/base once the other versions gain that package. Do not grow this into a per-version copy pattern.
 package com.castleshift.forge;
 
 import com.castleshift.CastleShift;
