@@ -11,7 +11,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -22,10 +21,13 @@ public class ConfigScreen extends Screen {
 
     private boolean enabled;
     private CastleShiftConfig.Preset preset;
+    private Integer initialCustomSpacing;
+    private Integer initialCustomSeparation;
     private EditBox customSpacingBox;
     private EditBox customSeparationBox;
     private Button doneButton;
     private boolean fieldsInvalid;
+    private boolean showNonAuthoritativeWarning;
 
     public ConfigScreen(Screen parent, Path configFile) {
         super(Component.translatable("config.castleshift.title"));
@@ -34,6 +36,8 @@ public class ConfigScreen extends Screen {
         CastleShiftConfig.Generation gen = ConfigLoader.load(configFile).generation();
         this.enabled = gen.enabled();
         this.preset = gen.preset();
+        this.initialCustomSpacing = gen.customSpacing();
+        this.initialCustomSeparation = gen.customSeparation();
     }
 
     @Override
@@ -41,7 +45,9 @@ public class ConfigScreen extends Screen {
         int centerX = this.width / 2;
         int y = this.height / 4;
 
-        if (this.minecraft.level != null && !this.minecraft.hasSingleplayerServer()) {
+        this.showNonAuthoritativeWarning =
+                this.minecraft.level != null && !this.minecraft.hasSingleplayerServer();
+        if (this.showNonAuthoritativeWarning) {
             // Non-authoritative warning: worldgen is server-side, so edits here only
             // affect this client's local copy, not the joined server's actual settings.
             y += 20;
@@ -63,11 +69,17 @@ public class ConfigScreen extends Screen {
         this.customSpacingBox = new EditBox(this.font, centerX - 150, y, 145, 20,
                 Component.translatable("config.castleshift.option.custom_spacing"));
         this.customSpacingBox.setResponder(text -> this.validate());
+        if (this.initialCustomSpacing != null) {
+            this.customSpacingBox.setValue(String.valueOf(this.initialCustomSpacing));
+        }
         this.addRenderableWidget(this.customSpacingBox);
 
         this.customSeparationBox = new EditBox(this.font, centerX + 5, y, 145, 20,
                 Component.translatable("config.castleshift.option.custom_separation"));
         this.customSeparationBox.setResponder(text -> this.validate());
+        if (this.initialCustomSeparation != null) {
+            this.customSeparationBox.setValue(String.valueOf(this.initialCustomSeparation));
+        }
         this.addRenderableWidget(this.customSeparationBox);
 
         y += 32;
@@ -149,5 +161,10 @@ public class ConfigScreen extends Screen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+        if (this.showNonAuthoritativeWarning) {
+            guiGraphics.drawCenteredString(this.font,
+                    Component.translatable("config.castleshift.warning.not_authoritative"),
+                    this.width / 2, 15 + this.font.lineHeight + 5, 0xFFFF55);
+        }
     }
 }

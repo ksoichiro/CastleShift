@@ -7,5 +7,6 @@
   "config.castleshift.preset.frequent": "Frequent",
   "config.castleshift.option.custom_spacing": "Custom Spacing",
   "config.castleshift.option.custom_separation": "Custom Separation",
-  "config.castleshift.reset": "Reset"
+  "config.castleshift.reset": "Reset",
+  "config.castleshift.warning.not_authoritative": "These settings only affect your local view - they do not change the settings on the server you're connected to."
 }
