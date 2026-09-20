@@ -25,6 +25,8 @@ public class ConfigScreen extends Screen {
     private Integer initialCustomSeparation;
     private EditBox customSpacingBox;
     private EditBox customSeparationBox;
+    private CycleButton<Boolean> enabledButton;
+    private CycleButton<CastleShiftConfig.Preset> presetButton;
     private Button doneButton;
     private boolean fieldsInvalid;
     private boolean showNonAuthoritativeWarning;
@@ -32,8 +34,19 @@ public class ConfigScreen extends Screen {
     /** Vanilla's error red (same tone as {@code ChatFormatting.RED}'s lighter UI variant). */
     private static final int INVALID_TEXT_COLOR = 0xFFFF5555;
 
-    /** {@code EditBox}'s default text color. */
-    private static final int VALID_TEXT_COLOR = 0xFFFFFFFF;
+    /** {@code EditBox}'s own default text color (14737632). */
+    private static final int VALID_TEXT_COLOR = 0xFFE0E0E0;
+
+    /**
+     * The gray vanilla hardcodes for {@code EditBox}'s suggestion text (-8355712).
+     *
+     * <p>Needed because 1.21.1's {@code EditBox#renderWidget} draws the {@code setHint(Component)}
+     * placeholder with the very same color as real input: it reuses the local
+     * {@code isEditable ? textColor : textColorUneditable} value for both, unlike the older
+     * {@code setSuggestion(String)} path, which dims itself. So the hint only looks like a
+     * placeholder if {@code setTextColor} is dimmed while the box is empty.
+     */
+    private static final int HINT_TEXT_COLOR = 0xFF808080;
 
     public ConfigScreen(Screen parent, Path configFile) {
         super(Component.translatable("config.castleshift.title"));
@@ -78,12 +91,12 @@ public class ConfigScreen extends Screen {
             y += 20;
         }
 
-        this.addRenderableWidget(CycleButton.onOffBuilder(this.enabled)
+        this.enabledButton = this.addRenderableWidget(CycleButton.onOffBuilder(this.enabled)
                 .create(centerX - 150, y, 300, 20, Component.translatable("config.castleshift.option.enabled"),
                         (button, value) -> this.enabled = value));
 
         y += 24;
-        this.addRenderableWidget(CycleButton.<CastleShiftConfig.Preset>builder(p ->
+        this.presetButton = this.addRenderableWidget(CycleButton.<CastleShiftConfig.Preset>builder(p ->
                         Component.translatable("config.castleshift.preset." + p.name().toLowerCase()))
                 .withValues(CastleShiftConfig.Preset.values())
                 .withInitialValue(this.preset)
@@ -167,13 +180,25 @@ public class ConfigScreen extends Screen {
             }
         }
 
-        this.customSpacingBox.setTextColor(spacingInvalid ? INVALID_TEXT_COLOR : VALID_TEXT_COLOR);
-        this.customSeparationBox.setTextColor(separationInvalid ? INVALID_TEXT_COLOR : VALID_TEXT_COLOR);
+        this.customSpacingBox.setTextColor(textColorFor(spacingText, spacingInvalid));
+        this.customSeparationBox.setTextColor(textColorFor(separationText, separationInvalid));
 
         this.fieldsInvalid = spacingInvalid || separationInvalid;
         if (this.doneButton != null) {
             this.doneButton.active = !this.fieldsInvalid;
         }
+    }
+
+    /**
+     * Three visual states share the one {@code EditBox} text color: the hint (empty box), a normal
+     * typed value, and an out-of-range/unparseable one. An empty box is never invalid (blank means
+     * "no override"), so the states cannot collide.
+     */
+    static int textColorFor(String text, boolean invalid) {
+        if (text == null || text.isEmpty()) {
+            return HINT_TEXT_COLOR;
+        }
+        return invalid ? INVALID_TEXT_COLOR : VALID_TEXT_COLOR;
     }
 
     private static boolean isUnparseable(String text) {
@@ -195,6 +220,13 @@ public class ConfigScreen extends Screen {
         CastleShiftConfig.Generation defaults = ConfigDefaults.defaults().generation();
         this.enabled = defaults.enabled();
         this.preset = defaults.preset();
+        this.initialCustomSpacing = defaults.customSpacing();
+        this.initialCustomSeparation = defaults.customSeparation();
+        // CycleButton keeps its own selection, and setValue() deliberately does not fire the
+        // onValueChange callback, so the widget and the field above have to be updated in pairs;
+        // assigning only the field leaves the button still showing the old choice.
+        this.enabledButton.setValue(this.enabled);
+        this.presetButton.setValue(this.preset);
         this.customSpacingBox.setValue("");
         this.customSeparationBox.setValue("");
         this.validate();
