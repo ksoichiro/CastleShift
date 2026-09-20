@@ -9,10 +9,16 @@ import com.castleshift.config.CastleShiftConfig;
 import com.castleshift.config.ConfigDefaults;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -139,6 +145,70 @@ class ConfigurableSpreadStructurePlacementTest {
                 PlacementTestInvoker.create(SALT).getPotentialStructureChunk(0L, 0, 0),
                 parsed.getPotentialStructureChunk(0L, 0, 0));
         assertEquals(ModPlacements.CONFIGURABLE_SPREAD, parsed.type());
+    }
+
+    /**
+     * The reimplemented spread must stay bit-for-bit identical to the {@code minecraft:random_spread}
+     * placement this structure set used before, otherwise switching presets would silently shift
+     * (or, worse, flatten) where castles land. Checked across many regions under FREQUENT, the
+     * tightest preset, because that is where a degenerate per-region seed would show up first.
+     */
+    @Test
+    void matchesVanillaRandomSpreadForTheSameSpacingAndSeparation() {
+        for (CastleShiftConfig.Preset preset : CastleShiftConfig.Preset.values()) {
+            CastleShiftConfig.set(
+                    new CastleShiftConfig(new CastleShiftConfig.Generation(true, preset, null, null)));
+            ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
+            RandomSpreadStructurePlacement vanilla = new RandomSpreadStructurePlacement(
+                    Vec3i.ZERO,
+                    StructurePlacement.FrequencyReductionMethod.DEFAULT,
+                    1.0F,
+                    SALT,
+                    Optional.empty(),
+                    placement.spacing(),
+                    placement.separation(),
+                    RandomSpreadType.LINEAR);
+
+            for (long seed : new long[] {0L, 12345L, -98765432101L}) {
+                for (int x = -2048; x <= 2048; x += 37) {
+                    for (int z = -2048; z <= 2048; z += 53) {
+                        assertEquals(
+                                vanilla.getPotentialStructureChunk(seed, x, z),
+                                placement.getPotentialStructureChunk(seed, x, z),
+                                "preset " + preset + " diverged from vanilla random_spread at " + x + "," + z);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Guards the per-region seeding: every region must draw its own offset, so neighbouring castles
+     * never sit at the same place inside their grid cell. A copy-paste slip that fed a constant
+     * instead of regionX/regionZ into setLargeFeatureWithSalt would collapse this set to one entry.
+     */
+    @Test
+    void offsetsWithinARegionVaryFromRegionToRegion() {
+        CastleShiftConfig.set(new CastleShiftConfig(
+                new CastleShiftConfig.Generation(true, CastleShiftConfig.Preset.FREQUENT, null, null)));
+        ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
+        int spacing = placement.spacing();
+        int offsetRange = spacing - placement.separation();
+
+        Set<Long> distinctOffsets = new HashSet<>();
+        for (int regionX = 0; regionX < 32; regionX++) {
+            for (int regionZ = 0; regionZ < 32; regionZ++) {
+                ChunkPos chunk = placement.getPotentialStructureChunk(12345L, regionX * spacing, regionZ * spacing);
+                int offsetX = chunk.x - regionX * spacing;
+                int offsetZ = chunk.z - regionZ * spacing;
+                assertTrue(offsetX >= 0 && offsetX < offsetRange, "offsetX out of range: " + offsetX);
+                assertTrue(offsetZ >= 0 && offsetZ < offsetRange, "offsetZ out of range: " + offsetZ);
+                distinctOffsets.add(((long) offsetX << 32) | (offsetZ & 0xFFFFFFFFL));
+            }
+        }
+
+        // 1024 regions over a 12x12 offset grid: anything close to 1 means the seeding is degenerate.
+        assertTrue(distinctOffsets.size() > 100, "expected varied per-region offsets, got " + distinctOffsets.size());
     }
 
     @Test
