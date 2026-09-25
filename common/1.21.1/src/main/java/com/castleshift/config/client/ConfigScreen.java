@@ -109,23 +109,30 @@ public class ConfigScreen extends Screen {
                         }));
 
         y += 24;
+        // Both boxes are constructed and pre-populated before either gets a responder attached.
+        // validate() reads both customSpacingBox and customSeparationBox, so wiring a responder
+        // (or calling setValue(), which fires it) before the second box exists is a null
+        // dereference the moment a saved override makes setValue() non-blank during init().
         this.customSpacingBox = new EditBox(this.font, centerX - 150, y, 145, 20,
                 Component.translatable("config.castleshift.option.custom_spacing"));
         // The constructor Component is narration-only; the hint is what the player actually sees.
         this.customSpacingBox.setHint(Component.translatable("config.castleshift.option.custom_spacing"));
-        this.customSpacingBox.setResponder(text -> this.validate());
-        if (this.initialCustomSpacing != null) {
-            this.customSpacingBox.setValue(String.valueOf(this.initialCustomSpacing));
-        }
-        this.addRenderableWidget(this.customSpacingBox);
 
         this.customSeparationBox = new EditBox(this.font, centerX + 5, y, 145, 20,
                 Component.translatable("config.castleshift.option.custom_separation"));
         this.customSeparationBox.setHint(Component.translatable("config.castleshift.option.custom_separation"));
-        this.customSeparationBox.setResponder(text -> this.validate());
+
+        if (this.initialCustomSpacing != null) {
+            this.customSpacingBox.setValue(String.valueOf(this.initialCustomSpacing));
+        }
         if (this.initialCustomSeparation != null) {
             this.customSeparationBox.setValue(String.valueOf(this.initialCustomSeparation));
         }
+
+        this.customSpacingBox.setResponder(text -> this.validate());
+        this.customSeparationBox.setResponder(text -> this.validate());
+
+        this.addRenderableWidget(this.customSpacingBox);
         this.addRenderableWidget(this.customSeparationBox);
 
         y += 32;
