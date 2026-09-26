@@ -257,12 +257,15 @@ public class ConfigScreen extends Screen {
     }
 
     /**
-     * The preset button is only meaningful when generation is on and the preset still supplies at
-     * least one of spacing/separation; otherwise nothing the player picks there would have any
-     * effect, so it is disabled outright rather than just dimmed.
+     * The preset button is only meaningful when generation is on and neither custom field is
+     * overridden. As soon as either spacing or separation is overridden, picking a different preset
+     * would silently do nothing for that field (see {@link #presetStatusKey}), which read as
+     * inconsistent with the button staying clickable, so it locks as soon as either one is set. A
+     * player who wants to change what the preset would supply for the still-preset-controlled field
+     * must first clear the override (via the custom box or Reset).
      */
     static boolean presetButtonActive(boolean enabled, boolean spacingOverridden, boolean separationOverridden) {
-        return enabled && !(spacingOverridden && separationOverridden);
+        return enabled && !spacingOverridden && !separationOverridden;
     }
 
     /**

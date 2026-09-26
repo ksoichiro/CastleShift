@@ -26,11 +26,13 @@ class ConfigScreenPresetStatusTest {
     }
 
     @Test
-    void presetButtonIsActiveOnlyWhenEnabledAndNotFullyOverridden() {
-        // Enabled: active unless both fields are overridden.
+    void presetButtonIsActiveOnlyWhenEnabledAndNoOverride() {
+        // Enabled: active only when neither field is overridden. Overriding either one locks the
+        // button, since it would otherwise look adjustable while only being able to affect the
+        // still-preset-controlled field.
         assertTrue(ConfigScreen.presetButtonActive(true, false, false));
-        assertTrue(ConfigScreen.presetButtonActive(true, true, false));
-        assertTrue(ConfigScreen.presetButtonActive(true, false, true));
+        assertFalse(ConfigScreen.presetButtonActive(true, true, false));
+        assertFalse(ConfigScreen.presetButtonActive(true, false, true));
         assertFalse(ConfigScreen.presetButtonActive(true, true, true));
 
         // Disabled ("Generate Castles" off): inactive regardless of the override state, since
