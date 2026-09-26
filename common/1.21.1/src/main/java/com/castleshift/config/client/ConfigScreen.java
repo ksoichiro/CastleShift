@@ -6,6 +6,7 @@ import com.castleshift.config.ConfigLoader;
 import com.castleshift.config.ConfigRanges;
 import com.castleshift.config.ConfigWriter;
 import java.nio.file.Path;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -30,6 +31,10 @@ public class ConfigScreen extends Screen {
     private Button doneButton;
     private boolean fieldsInvalid;
     private boolean showNonAuthoritativeWarning;
+    private boolean presetFullyOverridden;
+    private Component presetStatus = Component.empty();
+    private int presetStatusColor;
+    private int overrideHintY;
 
     /** Vanilla's error red (same tone as {@code ChatFormatting.RED}'s lighter UI variant). */
     private static final int INVALID_TEXT_COLOR = 0xFFFF5555;
@@ -47,6 +52,12 @@ public class ConfigScreen extends Screen {
      * placeholder if {@code setTextColor} is dimmed while the box is empty.
      */
     private static final int HINT_TEXT_COLOR = 0xFF808080;
+
+    /** Help/status text while the preset still controls both values. */
+    private static final int PRESET_STATUS_NEUTRAL_COLOR = 0xFFA0A0A0;
+
+    /** Status text once a custom value has taken over from the preset. */
+    private static final int PRESET_STATUS_OVERRIDDEN_COLOR = 0xFFFFD37F;
 
     public ConfigScreen(Screen parent, Path configFile) {
         super(Component.translatable("config.castleshift.title"));
@@ -96,8 +107,8 @@ public class ConfigScreen extends Screen {
                         (button, value) -> this.enabled = value));
 
         y += 24;
-        this.presetButton = this.addRenderableWidget(CycleButton.<CastleShiftConfig.Preset>builder(p ->
-                        Component.translatable("config.castleshift.preset." + p.name().toLowerCase()))
+        this.presetButton = this.addRenderableWidget(CycleButton.<CastleShiftConfig.Preset>builder(
+                        this::presetValueLabel)
                 .withValues(CastleShiftConfig.Preset.values())
                 .withInitialValue(this.preset)
                 .create(centerX - 150, y, 300, 20, Component.translatable("config.castleshift.option.preset"),
@@ -135,7 +146,12 @@ public class ConfigScreen extends Screen {
         this.addRenderableWidget(this.customSpacingBox);
         this.addRenderableWidget(this.customSeparationBox);
 
-        y += 32;
+        // Two text lines (static precedence hint, then the live status from validate()) drawn in
+        // render(), between the custom boxes and the bottom buttons.
+        y += 26;
+        this.overrideHintY = y;
+
+        y += 30;
         this.addRenderableWidget(Button.builder(Component.translatable("config.castleshift.reset"),
                         button -> this.resetToDefaults())
                 .bounds(centerX - 150, y, 95, 20)
@@ -194,6 +210,59 @@ public class ConfigScreen extends Screen {
         if (this.doneButton != null) {
             this.doneButton.active = !this.fieldsInvalid;
         }
+
+        this.updatePresetStatus(!spacingText.isBlank(), !separationText.isBlank());
+    }
+
+    /**
+     * Makes the per-field precedence visible: a filled-in custom box always wins over the preset
+     * for that one value, so picking a preset can silently do nothing for an overridden field.
+     * Any non-blank text counts as an override, even while it is still invalid, because that is
+     * the value that will be used (or block Done) once it is fixed.
+     */
+    private void updatePresetStatus(boolean spacingOverridden, boolean separationOverridden) {
+        CastleShiftConfig.Generation fromPreset =
+                new CastleShiftConfig.Generation(this.enabled, this.preset, null, null);
+        String key = presetStatusKey(spacingOverridden, separationOverridden);
+        this.presetStatus = Component.translatable(
+                key, fromPreset.effectiveSpacing(), fromPreset.effectiveSeparation());
+        this.presetStatusColor = spacingOverridden || separationOverridden
+                ? PRESET_STATUS_OVERRIDDEN_COLOR
+                : PRESET_STATUS_NEUTRAL_COLOR;
+
+        boolean fullyOverridden = spacingOverridden && separationOverridden;
+        if (this.presetButton != null && fullyOverridden != this.presetFullyOverridden) {
+            this.presetFullyOverridden = fullyOverridden;
+            // setValue() re-renders the label through presetValueLabel without firing the
+            // onValueChange callback, so this cannot recurse into validate().
+            this.presetButton.setValue(this.preset);
+        }
+    }
+
+    /**
+     * Lang key for the status line. Every key takes the preset's spacing and separation as its two
+     * arguments (in that order), even the ones that show only one or none of them.
+     */
+    static String presetStatusKey(boolean spacingOverridden, boolean separationOverridden) {
+        if (spacingOverridden && separationOverridden) {
+            return "config.castleshift.status.preset_unused";
+        }
+        if (spacingOverridden) {
+            return "config.castleshift.status.preset_sets_separation";
+        }
+        if (separationOverridden) {
+            return "config.castleshift.status.preset_sets_spacing";
+        }
+        return "config.castleshift.status.preset_sets_both";
+    }
+
+    /**
+     * Grays out the preset's value while both values are overridden. The button stays clickable on
+     * purpose: the player may be about to clear an override and want the preset ready for it.
+     */
+    private Component presetValueLabel(CastleShiftConfig.Preset p) {
+        Component label = Component.translatable("config.castleshift.preset." + p.name().toLowerCase());
+        return this.presetFullyOverridden ? label.copy().withStyle(ChatFormatting.DARK_GRAY) : label;
     }
 
     /**
@@ -267,5 +336,10 @@ public class ConfigScreen extends Screen {
                     Component.translatable("config.castleshift.warning.not_authoritative"),
                     this.width / 2, 15 + this.font.lineHeight + 5, 0xFFFF55);
         }
+        guiGraphics.drawCenteredString(this.font,
+                Component.translatable("config.castleshift.hint.custom_overrides_preset"),
+                this.width / 2, this.overrideHintY, PRESET_STATUS_NEUTRAL_COLOR);
+        guiGraphics.drawCenteredString(this.font, this.presetStatus,
+                this.width / 2, this.overrideHintY + this.font.lineHeight + 3, this.presetStatusColor);
     }
 }
