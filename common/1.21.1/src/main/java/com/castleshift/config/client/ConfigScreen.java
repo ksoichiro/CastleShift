@@ -211,7 +211,7 @@ public class ConfigScreen extends Screen {
         this.customSpacingBox.setTextColor(textColorFor(spacingText, spacingInvalid));
         this.customSeparationBox.setTextColor(textColorFor(separationText, separationInvalid));
 
-        this.fieldsInvalid = spacingInvalid || separationInvalid;
+        this.fieldsInvalid = fieldsInvalid(this.enabled, spacingInvalid, separationInvalid);
         if (this.doneButton != null) {
             this.doneButton.active = !this.fieldsInvalid;
         }
@@ -263,6 +263,16 @@ public class ConfigScreen extends Screen {
      */
     static boolean presetButtonActive(boolean enabled, boolean spacingOverridden, boolean separationOverridden) {
         return enabled && !(spacingOverridden && separationOverridden);
+    }
+
+    /**
+     * An invalid custom field can only block Done while it still has an effect. Once "Generate
+     * Castles" is off, both custom boxes are disabled (see the {@code setEditable} calls below)
+     * and no longer feed into worldgen, so a stale invalid value left in one of them must not trap
+     * the player on this screen when all they wanted was to flip generation off.
+     */
+    static boolean fieldsInvalid(boolean enabled, boolean spacingInvalid, boolean separationInvalid) {
+        return enabled && (spacingInvalid || separationInvalid);
     }
 
     /**

@@ -40,6 +40,24 @@ class ConfigScreenPresetStatusTest {
     }
 
     @Test
+    void invalidCustomFieldsOnlyBlockDoneWhileGenerationIsEnabled() {
+        // Unchanged existing behavior: an invalid value blocks Done while generation is on.
+        assertTrue(ConfigScreen.fieldsInvalid(true, true, false));
+        assertTrue(ConfigScreen.fieldsInvalid(true, false, true));
+        assertTrue(ConfigScreen.fieldsInvalid(true, true, true));
+        assertFalse(ConfigScreen.fieldsInvalid(true, false, false));
+
+        // The fix: once "Generate Castles" is off, both custom boxes are disabled and have no
+        // effect on worldgen, so a stale invalid value left in one of them must not trap the
+        // player on this screen (previously Done stayed disabled with no visible explanation,
+        // since the disabled box also suppresses the red error-text color).
+        assertFalse(ConfigScreen.fieldsInvalid(false, true, false));
+        assertFalse(ConfigScreen.fieldsInvalid(false, false, true));
+        assertFalse(ConfigScreen.fieldsInvalid(false, true, true));
+        assertFalse(ConfigScreen.fieldsInvalid(false, false, false));
+    }
+
+    @Test
     void everyStatusKeyAndTheHintAreTranslatedInEnglishAndJapanese() throws Exception {
         String[] keys = {
             ConfigScreen.presetStatusKey(false, false),
