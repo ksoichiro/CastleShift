@@ -15,6 +15,8 @@ configurations {
     }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
+    testCompileClasspath.extendsFrom common
+    testRuntimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
 
     shadowBundle {
@@ -25,18 +27,44 @@ configurations {
 
 def commonModule = ':common-1.21.9'
 
+repositories {
+    // ModMenu (optional, compile-only integration)
+    maven { url 'https://maven.terraformersmc.com/releases' }
+}
+
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     modApi "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
 
     common(project(path: commonModule, configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: commonModule, configuration: 'transformProductionFabric')
+
+    // night-config: Fabric does not ship it, so bundle it into the mod jar.
+    modImplementation include("com.electronwill.night-config:core:${rootProject.night_config_version}")
+    modImplementation include("com.electronwill.night-config:toml:${rootProject.night_config_version}")
+
+    // ModMenu: compile-only, so the mod builds and runs fine without it installed.
+    modCompileOnly "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
+
+    // fabric-loader-junit launches tests through Knot, so mixins are applied. Used to test
+    // ChunkGeneratorMixin, which common-1.21.9's plain JUnit run cannot see.
+    testImplementation "net.fabricmc:fabric-loader-junit:$rootProject.fabric_loader_version"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 sourceSets {
     main {
         java {
-            srcDir '../base/src/main/java'
+            // 1.21.9 uses its own entrypoint: it registers ModPlacements, which
+            // only exists under a subset of common versions (see forge/base-56 for the same pattern).
+            srcDir '../base-1.21.9/src/main/java'
+            // Optional ModMenu integration (compiled against modCompileOnly ModMenu).
+            srcDir '../base-modmenu/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

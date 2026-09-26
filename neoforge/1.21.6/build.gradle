@@ -18,7 +18,7 @@ configurations {
 sourceSets {
     main {
         java {
-            srcDir '../base/src/main/java'
+            srcDir '../base-1.21.6/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

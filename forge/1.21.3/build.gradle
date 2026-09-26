@@ -42,7 +42,7 @@ sourceSets {
             if (forgeMajor >= 56) {
                 srcDir '../base-56/src/main/java'
             } else {
-                srcDir '../base/src/main/java'
+                srcDir '../base-1.21.3/src/main/java'
             }
             srcDir 'src/main/java'
         }
@@ -67,6 +67,10 @@ dependencies {
     if (forgeMajor >= 56) {
         annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
     }
+
+    // night-config: provided by Forge at runtime.
+    compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
 }
 
 // Merge resources and classes into the same directory for JPMS module support

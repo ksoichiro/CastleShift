@@ -1,0 +1,19 @@
+{
+  "config.castleshift.title": "Castle Shift Configuration",
+  "config.castleshift.option.enabled": "Generate Castles",
+  "config.castleshift.option.preset": "Generation Frequency",
+  "config.castleshift.preset.sparse": "Sparse",
+  "config.castleshift.preset.default": "Default",
+  "config.castleshift.preset.frequent": "Frequent",
+  "config.castleshift.option.custom_spacing": "Custom Spacing",
+  "config.castleshift.option.custom_separation": "Custom Separation",
+  "config.castleshift.hint.custom_overrides_preset": "A filled-in custom value takes priority over the preset",
+  "config.castleshift.status.preset_sets_both": "Preset in use: spacing %1$s, separation %2$s",
+  "config.castleshift.status.preset_sets_separation": "Using your spacing. Preset sets separation (%2$s)",
+  "config.castleshift.status.preset_sets_spacing": "Using your separation. Preset sets spacing (%1$s)",
+  "config.castleshift.status.preset_unused": "Both values are custom, so the preset has no effect",
+  "config.castleshift.reset": "Reset",
+  "config.castleshift.warning.not_authoritative": "These settings only affect your local view - they do not change the settings on the server you're connected to.",
+  "key.categories.castleshift": "Castle Shift",
+  "key.castleshift.open_config": "Open Castle Shift Config"
+}
