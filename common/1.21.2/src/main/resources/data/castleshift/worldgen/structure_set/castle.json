@@ -6,9 +6,7 @@
     }
   ],
   "placement": {
-    "type": "minecraft:random_spread",
-    "spacing": 32,
-    "separation": 8,
+    "type": "castleshift:configurable_spread",
     "salt": 194572831,
     "exclusion_zone": {
       "other_set": "minecraft:villages",
