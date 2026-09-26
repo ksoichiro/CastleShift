@@ -3,12 +3,14 @@ package com.castleshift.world.placement;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.castleshift.config.CastleShiftConfig;
 import com.castleshift.config.ConfigDefaults;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -52,6 +54,73 @@ class ConfigurableSpreadStructurePlacementTest {
                         PlacementTestInvoker.isPotentialSpreadChunk(placement, 0L, x, z),
                         "expected no placement chunk when generation is disabled");
             }
+        }
+    }
+
+    /**
+     * Regression test for the {@code enabled = false} /locate stall. Vanilla's
+     * {@code StructureCheck#checkStart} never calls {@code isPlacementChunk}: for every candidate
+     * region it only consults {@code applyAdditionalChunkRestrictions}, then runs a full jigsaw
+     * assembly and, if that fits, generates the chunk to STRUCTURE_STARTS on the server thread.
+     * With the switch off nothing is ever found, so /locate paid that cost for all 201x201 regions
+     * (measured: ~254 s frozen server thread, 40,401 region files written). The cheap pre-check
+     * must therefore reject every chunk while generation is disabled.
+     */
+    @Test
+    void disabledConfigRejectsEveryChunkInTheCheapPreCheckVanillaLocateUses() {
+        CastleShiftConfig.set(new CastleShiftConfig(
+                new CastleShiftConfig.Generation(false, CastleShiftConfig.Preset.DEFAULT, null, null)));
+        ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
+
+        // ChunkGeneratorMixin keys the whole /locate ring-search skip off this flag.
+        assertFalse(placement.isGenerationEnabled());
+        for (int x = -64; x < 64; x++) {
+            for (int z = -64; z < 64; z++) {
+                assertFalse(
+                        placement.applyAdditionalChunkRestrictions(x, z, 12345L),
+                        "disabled generation must short-circuit StructureCheck#checkStart at " + x + "," + z);
+            }
+        }
+    }
+
+    @Test
+    void enabledConfigKeepsVanillaFrequencyBehaviourInThePreCheck() {
+        CastleShiftConfig.set(new CastleShiftConfig(
+                new CastleShiftConfig.Generation(true, CastleShiftConfig.Preset.DEFAULT, null, null)));
+        ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
+
+        assertTrue(placement.isGenerationEnabled());
+        // frequency is 1.0, so vanilla accepts every chunk here.
+        for (int x = -64; x < 64; x++) {
+            for (int z = -64; z < 64; z++) {
+                assertTrue(placement.applyAdditionalChunkRestrictions(x, z, 12345L));
+            }
+        }
+    }
+
+    /**
+     * Hand-edited config files can contain values the screen would reject. None of them may make
+     * the placement math hang or throw, since it runs on the server thread during worldgen and
+     * /locate.
+     */
+    @Test
+    void degenerateSpacingAndSeparationNeverHangOrThrow() {
+        int[][] cases = {{0, 0}, {-5, 3}, {1, 0}, {1, 1}, {8, 8}, {8, 20}, {Integer.MAX_VALUE, 0}, {4, -4}};
+        for (int[] c : cases) {
+            CastleShiftConfig.set(new CastleShiftConfig(
+                    new CastleShiftConfig.Generation(true, CastleShiftConfig.Preset.DEFAULT, c[0], c[1])));
+            ConfigurableSpreadStructurePlacement placement = PlacementTestInvoker.create(SALT);
+            assertTimeoutPreemptively(
+                    Duration.ofSeconds(10),
+                    () -> {
+                        for (int x = -256; x <= 256; x += 7) {
+                            for (int z = -256; z <= 256; z += 11) {
+                                placement.getPotentialStructureChunk(12345L, x, z);
+                                PlacementTestInvoker.isPotentialSpreadChunk(placement, 12345L, x, z);
+                            }
+                        }
+                    },
+                    "spacing=" + c[0] + " separation=" + c[1]);
         }
     }
 

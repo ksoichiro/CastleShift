@@ -28,16 +28,10 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
  * below keep the values config-driven. The spacing/separation handed to the super constructor are
  * never read: every vanilla method that reads those private fields is overridden here.
  *
- * <p>{@link #getPotentialStructureChunk} deliberately has <em>no</em> {@code enabled()} guard: that
- * method only answers "which chunk of this region would hold a castle", and the locate path still
- * goes through {@code StructureCheck#checkStart} → {@code StructurePlacement#isStructureChunk} →
- * {@link #isPlacementChunk}, which does check it. Verified empirically on a headless 1.21.1 Fabric
- * dev server (fresh world, seed 12345) with {@code enabled = false} in {@code castleshift.toml}:
- * {@code /locate structure castleshift:castle} exhaustively searched and answered "Could not find
- * a structure of type castleshift:castle nearby", while {@code /locate structure
- * minecraft:village_plains} on the same server answered normally. The same command with
- * {@code enabled = true} answers immediately ("at [736, ~, -144]"). So {@code /locate} never points
- * at a castle that would not generate, and no extra guard is needed here.
+ * <p>{@link #getPotentialStructureChunk} has no {@code enabled()} guard: it only answers "which
+ * chunk of this region would hold a castle" and must return a position. The on/off switch lives in
+ * {@link #isPlacementChunk} (worldgen) and {@link #applyAdditionalChunkRestrictions} (the only
+ * placement check the {@code /locate} path makes, see that method for why it matters).
  */
 public class ConfigurableSpreadStructurePlacement extends RandomSpreadStructurePlacement {
 
@@ -81,8 +75,31 @@ public class ConfigurableSpreadStructurePlacement extends RandomSpreadStructureP
         return isPotentialSpreadChunk(state.getLevelSeed(), chunkX, chunkZ);
     }
 
+    /**
+     * Rejects every chunk while generation is disabled. {@code StructureCheck#checkStart} (behind
+     * {@code /locate}, explorer maps and {@code StructureManager#checkStructurePresence}) never calls
+     * {@link #isPlacementChunk}, only this method, and when it passes vanilla runs a full jigsaw
+     * assembly for the candidate and, if that fits, generates the chunk to STRUCTURE_STARTS on the
+     * server thread. Without this guard a disabled-castle {@code /locate} did that for all 201x201
+     * search regions (about 4 minutes of frozen server thread, thousands of proto-chunks to save on
+     * quit). {@code ChunkGeneratorMixin} skips that search outright; this keeps any other caller of
+     * {@code checkStart} cheap too. {@code isStructureChunk} also calls this, so worldgen agrees.
+     */
+    @Override
+    public boolean applyAdditionalChunkRestrictions(int chunkX, int chunkZ, long seed) {
+        if (!isGenerationEnabled()) {
+            return false;
+        }
+        return super.applyAdditionalChunkRestrictions(chunkX, chunkZ, seed);
+    }
+
+    /** Read live, like spacing/separation. Also consulted by {@code ChunkGeneratorMixin}. */
+    public boolean isGenerationEnabled() {
+        return CastleShiftConfig.get().generation().enabled();
+    }
+
     boolean isPotentialSpreadChunk(long seed, int chunkX, int chunkZ) {
-        if (!CastleShiftConfig.get().generation().enabled()) {
+        if (!isGenerationEnabled()) {
             return false;
         }
         ChunkPos potential = getPotentialStructureChunk(seed, chunkX, chunkZ);
