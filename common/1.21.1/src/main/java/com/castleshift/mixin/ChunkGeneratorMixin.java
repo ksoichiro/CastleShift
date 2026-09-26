@@ -21,6 +21,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * synchronously asks chunk storage whether that chunk already holds a start. That storage probe runs
  * before any placement check, so with nothing ever found it touched 40,401 region files and froze
  * the server thread for over two minutes even after the placement itself rejected every chunk.
+ *
+ * <p>Automated coverage is {@code fabric/1.21.1/src/test/.../ChunkGeneratorMixinTest}, which runs
+ * with mixins applied (fabric-loader-junit). The tests in common-1.21.1 run without a Mixin
+ * transformer and cannot see this class. Nothing automated covers NeoForge or Forge, or a real
+ * {@code /locate}. To check those by hand: set {@code enabled = false} in
+ * {@code run/config/castleshift.toml}, delete {@code run/world}, start
+ * {@code ./gradlew fabric:runServer} (or {@code neoforge:runServer}) with RCON enabled in
+ * {@code run/server.properties}, send {@code locate structure castleshift:castle} over RCON, and
+ * expect "Could not find a structure" within a second, with {@code run/world/region} still
+ * holding only a handful of files. Without the mixin it takes minutes and leaves 40,401 region
+ * files.
  */
 @Mixin(ChunkGenerator.class)
 public abstract class ChunkGeneratorMixin {

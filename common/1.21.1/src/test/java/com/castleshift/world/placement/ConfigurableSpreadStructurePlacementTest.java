@@ -65,6 +65,10 @@ class ConfigurableSpreadStructurePlacementTest {
      * With the switch off nothing is ever found, so /locate paid that cost for all 201x201 regions
      * (measured: ~254 s frozen server thread, 40,401 region files written). The cheap pre-check
      * must therefore reject every chunk while generation is disabled.
+     *
+     * <p>This test does not exercise ChunkGeneratorMixin, which is the part that actually removed
+     * the stall. This module's tests run without a Mixin transformer. The mixin is covered by
+     * fabric/1.21.1's ChunkGeneratorMixinTest, which runs under fabric-loader-junit.
      */
     @Test
     void disabledConfigRejectsEveryChunkInTheCheapPreCheckVanillaLocateUses() {

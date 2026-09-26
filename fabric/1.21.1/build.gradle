@@ -15,6 +15,8 @@ configurations {
     }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
+    testCompileClasspath.extendsFrom common
+    testRuntimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
 
     shadowBundle {
@@ -43,6 +45,16 @@ dependencies {
 
     // ModMenu: compile-only, so the mod builds and runs fine without it installed.
     modCompileOnly "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
+
+    // fabric-loader-junit launches tests through Knot, so mixins are applied. Used to test
+    // ChunkGeneratorMixin, which common-1.21.1's plain JUnit run cannot see.
+    testImplementation "net.fabricmc:fabric-loader-junit:$rootProject.fabric_loader_version"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 sourceSets {
