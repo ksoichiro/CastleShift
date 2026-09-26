@@ -1,6 +1,6 @@
-// Temporary 26.1.2-only override of the shared forge/base-56 entrypoint (forgeMajor >= 56, EventBus 7):
-// com.castleshift.world.placement (ModPlacements) exists only under a subset of versions so far.
-// Fold this directory back into forge/base-56 once every forgeMajor>=56 version has that package.
+// 26.1.2-only forge entrypoint (forgeMajor 64, EventBus 7): its Forge version removed
+// RegisterKeyMappingsEvent.getBus(BusGroup) in favor of a plain static BUS field, unlike
+// 1.21.6-1.21.11 (see forge/base-1.21.6), so this cannot be merged with that shared dir.
 package com.castleshift.forge;
 
 import com.castleshift.CastleShift;

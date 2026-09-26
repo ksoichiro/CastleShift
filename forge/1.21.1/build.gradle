@@ -43,9 +43,7 @@ sourceSets {
             if (forgeMajor >= 56) {
                 srcDir '../base-56/src/main/java'
             } else {
-                // 1.21.1 uses its own entrypoint: it registers ModPlacements, which
-                // only exists under common/1.21.1 (same pattern as base-56).
-                srcDir '../base-1.21.1/src/main/java'
+                srcDir '../base/src/main/java'
             }
             srcDir 'src/main/java'
         }

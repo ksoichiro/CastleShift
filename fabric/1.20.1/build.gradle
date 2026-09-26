@@ -52,9 +52,7 @@ test {
 sourceSets {
     main {
         java {
-            // 1.20.1 uses its own entrypoint: it registers ModPlacements, which
-            // only exists under a subset of common versions.
-            srcDir '../base-1.20.1/src/main/java'
+            srcDir '../base/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

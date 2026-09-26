@@ -40,7 +40,7 @@ sourceSets {
             srcDir '../../common/shared/src/main/java'
             srcDir "../../common/${project.ext.minecraft_version}/src/main/java"
             if (forgeMajor >= 56) {
-                srcDir '../base-1.21.10/src/main/java'
+                srcDir '../base-1.21.6/src/main/java'
             } else {
                 srcDir '../base/src/main/java'
             }

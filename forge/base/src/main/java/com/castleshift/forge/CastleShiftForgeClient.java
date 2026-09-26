@@ -1,5 +1,3 @@
-// 26.1.2-only forge client entrypoint; see CastleShiftForge for why this can't merge with
-// forge/base-1.21.6 despite both being EventBus 7.
 package com.castleshift.forge;
 
 import com.castleshift.config.ConfigLoader;
@@ -9,25 +7,28 @@ import java.nio.file.Path;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
- * Client-only registrations for the Forge 56+ (EventBus 7) entrypoint. Forge allows a single
- * {@code @Mod} class per mod id, so unlike NeoForge this cannot be a second entrypoint:
- * {@link CastleShiftForge} calls {@link #init} behind a {@code FMLEnvironment.dist.isClient()}
- * check so these client classes are never loaded on a dedicated server.
+ * Client-only registrations. Forge allows a single {@code @Mod} class per mod id, so unlike
+ * NeoForge this cannot be a second entrypoint: {@link CastleShiftForge} calls {@link #init} behind
+ * a {@code FMLEnvironment.dist.isClient()} check so these client classes are never loaded on a
+ * dedicated server.
  */
 public final class CastleShiftForgeClient {
 
     private CastleShiftForgeClient() {}
 
-    public static void init() {
-        // EventBus 7 events are typed per-class; both RegisterKeyMappingsEvent and
-        // ClientTickEvent.Post expose their own static BUS field to listen on directly.
-        RegisterKeyMappingsEvent.BUS.addListener(CastleShiftForgeClient::onRegisterKeyMappings);
-        TickEvent.ClientTickEvent.Post.BUS.addListener(CastleShiftForgeClient::onClientTick);
+    public static void init(IEventBus modEventBus) {
+        // RegisterKeyMappingsEvent implements IModBusEvent -> mod bus.
+        modEventBus.addListener(CastleShiftForgeClient::onRegisterKeyMappings);
+        // TickEvent is a game-bus event; register(Class) picks up the @SubscribeEvent method below.
+        MinecraftForge.EVENT_BUS.register(CastleShiftForgeClient.class);
 
         ModLoadingContext.get().registerExtensionPoint(
                 ConfigScreenHandler.ConfigScreenFactory.class,
@@ -39,7 +40,12 @@ public final class CastleShiftForgeClient {
         event.register(ClientConfigKeybind.OPEN_CONFIG_SCREEN);
     }
 
-    private static void onClientTick(TickEvent.ClientTickEvent.Post event) {
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        // Forge fires this twice per tick; only act once.
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         ClientConfigKeybind.onClientTick(Minecraft.getInstance(), configFile());
     }
 

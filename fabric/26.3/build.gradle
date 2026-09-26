@@ -55,9 +55,7 @@ test {
 sourceSets {
     main {
         java {
-            // 26.3 uses its own entrypoint: it registers ModPlacements, which
-            // only exists under a subset of common versions.
-            srcDir '../base-26.3/src/main/java'
+            srcDir '../base-26x/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

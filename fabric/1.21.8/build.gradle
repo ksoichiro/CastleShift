@@ -60,9 +60,7 @@ test {
 sourceSets {
     main {
         java {
-            // 1.21.8 uses its own entrypoint: it registers ModPlacements, which
-            // only exists under a subset of common versions (see forge/base-56 for the same pattern).
-            srcDir '../base-1.21.8/src/main/java'
+            srcDir '../base/src/main/java'
             // Optional ModMenu integration (compiled against modCompileOnly ModMenu).
             srcDir '../base-modmenu/src/main/java'
             srcDir 'src/main/java'

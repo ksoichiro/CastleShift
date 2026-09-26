@@ -1,3 +1,5 @@
+// Shared fabric/base override for the 26.x family: KeyMapping.Category/fabric-key-mapping-api-v1 differ from the 1.20.1/1.21.x family, so this stays a separate override even after they folded back into fabric/base.
+// Fold this directory back into fabric/base once the other versions gain that package. Do not grow this into a per-version copy pattern.
 package com.castleshift.fabric;
 
 import com.castleshift.CastleShift;

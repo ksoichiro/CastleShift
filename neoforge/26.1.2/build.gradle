@@ -30,7 +30,7 @@ def commonModule = ':common-26.1.2'
 sourceSets {
     main {
         java {
-            srcDir '../base-26.1.2/src/main/java'
+            srcDir '../base/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

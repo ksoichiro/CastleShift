@@ -1,5 +1,5 @@
-// Temporary 1.21.6-only override directory (see CastleShiftForge): the config screen classes need
-// com.castleshift.world.placement. Fold back into forge/base-56 once every forgeMajor>=56 version has it.
+// Shared forge client entrypoint for forgeMajor 56-61 (1.21.6-1.21.11); see CastleShiftForge for
+// why this can't be merged with forge/base-26.1.2 despite both being EventBus 7.
 package com.castleshift.forge;
 
 import com.castleshift.config.ConfigLoader;
