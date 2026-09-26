@@ -104,7 +104,12 @@ public class ConfigScreen extends Screen {
 
         this.enabledButton = this.addRenderableWidget(CycleButton.onOffBuilder(this.enabled)
                 .create(centerX - 150, y, 300, 20, Component.translatable("config.castleshift.option.enabled"),
-                        (button, value) -> this.enabled = value));
+                        (button, value) -> {
+                            this.enabled = value;
+                            // Every other control is a no-op while generation is disabled, so their
+                            // active/editable state has to be re-derived whenever this flips.
+                            this.validate();
+                        }));
 
         y += 24;
         this.presetButton = this.addRenderableWidget(CycleButton.<CastleShiftConfig.Preset>builder(
@@ -211,6 +216,15 @@ public class ConfigScreen extends Screen {
             this.doneButton.active = !this.fieldsInvalid;
         }
 
+        // Both custom boxes have no effect while generation is disabled, so disable them outright.
+        // setEditable() (not just .active) is required too: EditBox#renderWidget picks between the
+        // color we set via setTextColor() above and its own dimmed "uneditable" color based solely
+        // on isEditable, so without this a disabled box holding stale invalid text would stay red.
+        this.customSpacingBox.active = this.enabled;
+        this.customSpacingBox.setEditable(this.enabled);
+        this.customSeparationBox.active = this.enabled;
+        this.customSeparationBox.setEditable(this.enabled);
+
         this.updatePresetStatus(!spacingText.isBlank(), !separationText.isBlank());
     }
 
@@ -231,12 +245,24 @@ public class ConfigScreen extends Screen {
                 : PRESET_STATUS_NEUTRAL_COLOR;
 
         boolean fullyOverridden = spacingOverridden && separationOverridden;
-        if (this.presetButton != null && fullyOverridden != this.presetFullyOverridden) {
-            this.presetFullyOverridden = fullyOverridden;
-            // setValue() re-renders the label through presetValueLabel without firing the
-            // onValueChange callback, so this cannot recurse into validate().
-            this.presetButton.setValue(this.preset);
+        if (this.presetButton != null) {
+            this.presetButton.active = presetButtonActive(this.enabled, spacingOverridden, separationOverridden);
+            if (fullyOverridden != this.presetFullyOverridden) {
+                this.presetFullyOverridden = fullyOverridden;
+                // setValue() re-renders the label through presetValueLabel without firing the
+                // onValueChange callback, so this cannot recurse into validate().
+                this.presetButton.setValue(this.preset);
+            }
         }
+    }
+
+    /**
+     * The preset button is only meaningful when generation is on and the preset still supplies at
+     * least one of spacing/separation; otherwise nothing the player picks there would have any
+     * effect, so it is disabled outright rather than just dimmed.
+     */
+    static boolean presetButtonActive(boolean enabled, boolean spacingOverridden, boolean separationOverridden) {
+        return enabled && !(spacingOverridden && separationOverridden);
     }
 
     /**
@@ -257,8 +283,10 @@ public class ConfigScreen extends Screen {
     }
 
     /**
-     * Grays out the preset's value while both values are overridden. The button stays clickable on
-     * purpose: the player may be about to clear an override and want the preset ready for it.
+     * Grays out the preset's value while both values are overridden. The button itself is disabled
+     * for the same reason (see {@link #presetButtonActive}); this label dimming is on top of that so
+     * the text still reads consistently in the one case ({@code enabled && fullyOverridden}) where
+     * the widget-level inactive tint alone wouldn't otherwise single out the fully-overridden state.
      */
     private Component presetValueLabel(CastleShiftConfig.Preset p) {
         Component label = Component.translatable("config.castleshift.preset." + p.name().toLowerCase());

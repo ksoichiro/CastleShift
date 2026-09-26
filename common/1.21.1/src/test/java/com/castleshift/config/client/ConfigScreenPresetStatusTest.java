@@ -1,6 +1,7 @@
 package com.castleshift.config.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonObject;
@@ -22,6 +23,20 @@ class ConfigScreenPresetStatusTest {
         assertEquals("config.castleshift.status.preset_sets_separation", ConfigScreen.presetStatusKey(true, false));
         assertEquals("config.castleshift.status.preset_sets_spacing", ConfigScreen.presetStatusKey(false, true));
         assertEquals("config.castleshift.status.preset_unused", ConfigScreen.presetStatusKey(true, true));
+    }
+
+    @Test
+    void presetButtonIsActiveOnlyWhenEnabledAndNotFullyOverridden() {
+        // Enabled: active unless both fields are overridden.
+        assertTrue(ConfigScreen.presetButtonActive(true, false, false));
+        assertTrue(ConfigScreen.presetButtonActive(true, true, false));
+        assertTrue(ConfigScreen.presetButtonActive(true, false, true));
+        assertFalse(ConfigScreen.presetButtonActive(true, true, true));
+
+        // Disabled ("Generate Castles" off): inactive regardless of the override state, since
+        // nothing the preset controls has any effect while generation itself is off.
+        assertFalse(ConfigScreen.presetButtonActive(false, false, false));
+        assertFalse(ConfigScreen.presetButtonActive(false, true, true));
     }
 
     @Test
