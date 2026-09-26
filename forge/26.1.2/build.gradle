@@ -39,10 +39,10 @@ sourceSets {
         java {
             srcDir '../../common/shared/src/main/java'
             srcDir "../../common/${project.ext.minecraft_version}/src/main/java"
-            // MC 26.1.2: forge_major_version=64 >= 56, so base-56 applies.
-            // StructureProcessorType<?> API is unchanged vs 1.21.x; the base-56
-            // entrypoint (DeferredRegister<StructureProcessorType<?>>) is reused directly.
-            srcDir '../base-56/src/main/java'
+            // MC 26.1.2: forge_major_version=64 >= 56, so the EventBus7 entrypoint style applies.
+            // Uses its own base-26.1.2 override since it registers ModPlacements, which only
+            // exists under a subset of common versions (see forge/base-56 for the shared fallback).
+            srcDir '../base-26.1.2/src/main/java'
             srcDir 'src/main/java'
         }
         resources {
@@ -66,6 +66,10 @@ dependencies {
     if (forgeMajor >= 56) {
         annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
     }
+
+    // night-config: provided by Forge at runtime.
+    compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
 }
 
 // Merge resources and classes into the same directory for JPMS module support

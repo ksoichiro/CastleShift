@@ -1,0 +1,19 @@
+{
+  "config.castleshift.title": "Castle Shift 設定",
+  "config.castleshift.option.enabled": "城を生成する",
+  "config.castleshift.option.preset": "生成頻度",
+  "config.castleshift.preset.sparse": "少なめ",
+  "config.castleshift.preset.default": "標準",
+  "config.castleshift.preset.frequent": "多め",
+  "config.castleshift.option.custom_spacing": "間隔(spacing)を直接指定",
+  "config.castleshift.option.custom_separation": "分離距離(separation)を直接指定",
+  "config.castleshift.hint.custom_overrides_preset": "数値を入力した項目は、プリセットより優先されます",
+  "config.castleshift.status.preset_sets_both": "プリセットを使用中: 間隔 %1$s、分離距離 %2$s",
+  "config.castleshift.status.preset_sets_separation": "間隔は入力値を使用。分離距離はプリセットの %2$s",
+  "config.castleshift.status.preset_sets_spacing": "分離距離は入力値を使用。間隔はプリセットの %1$s",
+  "config.castleshift.status.preset_unused": "両方とも入力値を使うため、プリセットは反映されません",
+  "config.castleshift.reset": "リセット",
+  "config.castleshift.warning.not_authoritative": "この設定はプレイヤー側の表示にのみ反映され、接続中のサーバー本体の設定は変更されません。",
+  "key.category.castleshift.castleshift": "Castle Shift",
+  "key.castleshift.open_config": "Castle Shift設定を開く"
+}

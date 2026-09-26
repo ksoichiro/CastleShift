@@ -66,6 +66,10 @@ dependencies {
     if (forgeMajor >= 56) {
         annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
     }
+
+    // night-config: provided by Forge at runtime.
+    compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
 }
 
 // Merge resources and classes into the same directory for JPMS module support

@@ -16,6 +16,8 @@ configurations {
     }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
+    testCompileClasspath.extendsFrom common
+    testRuntimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
 
     shadowBundle {
@@ -34,12 +36,28 @@ dependencies {
     // For loom-no-remap, use default project configuration (no 'namedElements' needed)
     common(project(path: commonModule)) { transitive false }
     shadowBundle project(path: commonModule, configuration: 'transformProductionFabric')
+
+    // night-config: Fabric does not ship it, so bundle it into the mod jar.
+    implementation include("com.electronwill.night-config:core:${rootProject.night_config_version}")
+    implementation include("com.electronwill.night-config:toml:${rootProject.night_config_version}")
+
+    // fabric-loader-junit launches tests through Knot, so mixins are applied. Used to test
+    // ChunkGeneratorMixin, which common-26.2's plain JUnit run cannot see.
+    testImplementation "net.fabricmc:fabric-loader-junit:$rootProject.fabric_loader_version"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 sourceSets {
     main {
         java {
-            srcDir '../base/src/main/java'
+            // 26.2 uses its own entrypoint: it registers ModPlacements, which
+            // only exists under a subset of common versions.
+            srcDir '../base-26.2/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

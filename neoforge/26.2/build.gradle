@@ -65,6 +65,10 @@ dependencies {
     // For loom-no-remap, use default project configuration (no 'namedElements' needed)
     common(project(path: commonModule)) { transitive false }
     shadowBundle project(path: commonModule, configuration: 'transformProductionNeoForge')
+
+    // night-config: provided by NeoForge at runtime.
+    compileOnly "com.electronwill.night-config:core:${rootProject.night_config_version}"
+    compileOnly "com.electronwill.night-config:toml:${rootProject.night_config_version}"
 }
 
 processResources {
