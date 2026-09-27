@@ -6,6 +6,7 @@ import com.castleshift.config.ConfigLoader;
 import com.castleshift.config.ConfigRanges;
 import com.castleshift.config.ConfigWriter;
 import java.nio.file.Path;
+import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 public class ConfigScreen extends Screen {
 
@@ -31,6 +33,7 @@ public class ConfigScreen extends Screen {
     private Button doneButton;
     private boolean fieldsInvalid;
     private boolean showNonAuthoritativeWarning;
+    private List<FormattedCharSequence> nonAuthoritativeWarningLines = List.of();
     private boolean presetFullyOverridden;
     private Component presetStatus = Component.empty();
     private int presetStatusColor;
@@ -99,7 +102,11 @@ public class ConfigScreen extends Screen {
         if (this.showNonAuthoritativeWarning) {
             // Non-authoritative warning: worldgen is server-side, so edits here only
             // affect this client's local copy, not the joined server's actual settings.
-            y += 20;
+            // Wrapped because the translated sentence does not fit on one line at
+            // narrower screen widths (drawCenteredString never wraps on its own).
+            this.nonAuthoritativeWarningLines = this.font.split(
+                    Component.translatable("config.castleshift.warning.not_authoritative"), this.width - 20);
+            y += this.nonAuthoritativeWarningLines.size() * this.font.lineHeight + 10;
         }
 
         this.enabledButton = this.addRenderableWidget(CycleButton.onOffBuilder(this.enabled)
@@ -373,9 +380,11 @@ public class ConfigScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
         if (this.showNonAuthoritativeWarning) {
-            guiGraphics.drawCenteredString(this.font,
-                    Component.translatable("config.castleshift.warning.not_authoritative"),
-                    this.width / 2, 15 + this.font.lineHeight + 5, 0xFFFF55);
+            int warningY = 15 + this.font.lineHeight + 5;
+            for (FormattedCharSequence line : this.nonAuthoritativeWarningLines) {
+                guiGraphics.drawCenteredString(this.font, line, this.width / 2, warningY, 0xFFFF55);
+                warningY += this.font.lineHeight;
+            }
         }
         guiGraphics.drawCenteredString(this.font,
                 Component.translatable("config.castleshift.hint.custom_overrides_preset"),
