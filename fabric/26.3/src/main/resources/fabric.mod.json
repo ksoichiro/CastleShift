@@ -20,6 +20,9 @@
     ],
     "client": [
       "com.castleshift.fabric.CastleShiftFabricClient"
+    ],
+    "modmenu": [
+      "com.castleshift.fabric.modmenu.CastleShiftModMenuIntegration"
     ]
   },
   "accessWidener": "castleshift.accesswidener",

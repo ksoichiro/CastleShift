@@ -28,7 +28,16 @@ configurations {
 
 def commonModule = ':common-26.2'
 
+repositories {
+    // ModMenu (optional, compile-only integration)
+    maven { url 'https://maven.terraformersmc.com/releases' }
+}
+
 dependencies {
+    // ModMenu: compile-only, so the mod builds and runs fine without it installed.
+    // loom-no-remap: no 'mod' prefix needed.
+    compileOnly "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
+
     // loom-no-remap: use 'implementation'/'api' instead of 'modImplementation'/'modApi'
     implementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     api "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
@@ -56,6 +65,8 @@ sourceSets {
     main {
         java {
             srcDir '../base-26x/src/main/java'
+            // Optional ModMenu integration (compiled against compileOnly ModMenu).
+            srcDir '../base-modmenu/src/main/java'
             srcDir 'src/main/java'
         }
         resources {

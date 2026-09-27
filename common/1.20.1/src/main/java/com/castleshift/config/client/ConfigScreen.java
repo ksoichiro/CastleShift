@@ -370,6 +370,9 @@ public class ConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // Unlike 1.21.x, Screen#render() here does not call renderBackground() itself; without
+        // this the screen behind (e.g. ModMenu's mod list) shows through.
+        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
         if (this.showNonAuthoritativeWarning) {
